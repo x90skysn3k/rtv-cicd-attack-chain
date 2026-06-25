@@ -13,6 +13,8 @@
 #   AWS_REGION     - default: us-east-1
 #   AWS_ROLE_ARN   - from terraform output role_arn
 #   PAT_VALUE      - GitHub PAT minted by the throwaway owner; never use a personal or work token
+#   EXPECTED_AWS_ACCOUNT_ID - dedicated demo AWS account ID
+#   EXPECTED_GITHUB_USER    - dedicated throwaway GitHub user login
 #
 # Optional:
 #   SECRET_NAME    - default: demo/github-pat
@@ -22,6 +24,8 @@ set -euo pipefail
 : "${DEMO_ORG:?set DEMO_ORG}"
 : "${AWS_ROLE_ARN:?set AWS_ROLE_ARN from terraform output}"
 : "${PAT_VALUE:?set PAT_VALUE (classic PAT minted by the throwaway demo user)}"
+: "${EXPECTED_AWS_ACCOUNT_ID:?set EXPECTED_AWS_ACCOUNT_ID to the dedicated demo AWS account ID}"
+: "${EXPECTED_GITHUB_USER:?set EXPECTED_GITHUB_USER to the dedicated throwaway GitHub user login}"
 
 DEMO_REPO="${DEMO_REPO:-cicd-demo}"
 AWS_REGION="${AWS_REGION:-us-east-1}"
@@ -34,6 +38,22 @@ if [ ! -f "$WORKFLOW_SRC" ]; then
   echo "FATAL: workflow.yml not found at $WORKFLOW_SRC" >&2
   exit 1
 fi
+
+echo "[preflight] Verifying active AWS and GitHub identities..."
+ACTUAL_AWS_ACCOUNT_ID=$(aws sts get-caller-identity \
+  --query Account --output text \
+  --region "${AWS_REGION}")
+if [ "$ACTUAL_AWS_ACCOUNT_ID" != "$EXPECTED_AWS_ACCOUNT_ID" ]; then
+  echo "FATAL: active AWS account is ${ACTUAL_AWS_ACCOUNT_ID}, expected ${EXPECTED_AWS_ACCOUNT_ID}" >&2
+  exit 1
+fi
+
+ACTUAL_GITHUB_USER=$(gh api user --jq .login)
+if [ "$ACTUAL_GITHUB_USER" != "$EXPECTED_GITHUB_USER" ]; then
+  echo "FATAL: active GitHub user is ${ACTUAL_GITHUB_USER}, expected ${EXPECTED_GITHUB_USER}" >&2
+  exit 1
+fi
+echo "      AWS account and GitHub user match expected demo identities"
 
 echo "[1/6] Creating public repo ${DEMO_ORG}/${DEMO_REPO}..."
 if gh repo view "${DEMO_ORG}/${DEMO_REPO}" >/dev/null 2>&1; then
@@ -69,11 +89,13 @@ mkdir -p .github/workflows
 cp "$WORKFLOW_SRC" .github/workflows/ci.yml
 git add .github/workflows/ci.yml
 git commit -m "Add vulnerable pull_request_target workflow" || echo "      workflow unchanged, skipping commit"
-git push -u origin HEAD
+git branch -M main
+git push -u origin main
 
 echo "[3/6] Setting repo variables..."
 gh variable set AWS_ROLE_ARN --repo "${DEMO_ORG}/${DEMO_REPO}" --body "${AWS_ROLE_ARN}"
 gh variable set AWS_REGION   --repo "${DEMO_ORG}/${DEMO_REPO}" --body "${AWS_REGION}"
+gh variable set SECRET_NAME  --repo "${DEMO_ORG}/${DEMO_REPO}" --body "${SECRET_NAME}"
 
 echo "[4/6] Writing PAT into Secrets Manager (${SECRET_NAME})..."
 aws secretsmanager put-secret-value \

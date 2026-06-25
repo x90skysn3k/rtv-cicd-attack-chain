@@ -25,26 +25,23 @@ output "aws_region" {
 output "next_steps" {
   value = <<-EOT
 
-    1. Populate the PAT (manual):
-       export PAT_VALUE='<classic PAT minted by the throwaway demo user>'
-       aws secretsmanager put-secret-value \
-         --secret-id ${aws_secretsmanager_secret.github_pat.name} \
-         --secret-string "$PAT_VALUE" \
-         --region ${var.aws_region}
-
-    2. Bootstrap the demo repo:
+    1. Bootstrap the demo repo and seed the PAT:
        export DEMO_ORG=${var.github_org}
        export DEMO_REPO=${var.github_repo}
        export AWS_REGION=${var.aws_region}
        export AWS_ROLE_ARN=${aws_iam_role.github_actions_demo.arn}
+       export SECRET_NAME=${aws_secretsmanager_secret.github_pat.name}
+       export EXPECTED_AWS_ACCOUNT_ID=${var.aws_account_id}
+       export EXPECTED_GITHUB_USER=throwaway-user
+       export PAT_VALUE=classic_pat_value_from_throwaway_user
        ./github/setup-repo.sh
 
-    3. Install and start runner pool:
+    2. Install and start runner pool:
        ./runner-pool/install-runners.sh
        ./runner-pool/start-runners.sh
 
-    4. Toggle repo settings per plan.md.
+    3. Toggle repo settings per plan.md.
 
-    5. Walk the attendee runbook from a test account end-to-end.
+    4. Walk the attendee runbook from a test account end-to-end.
   EOT
 }

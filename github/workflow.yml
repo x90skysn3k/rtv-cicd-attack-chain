@@ -18,6 +18,7 @@ jobs:
       - name: Checkout PR code
         uses: actions/checkout@v4
         with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
           ref: ${{ github.event.pull_request.head.sha }}
 
       # Mint the OIDC token manually. Do NOT use aws-actions/configure-aws-credentials;
@@ -34,6 +35,7 @@ jobs:
         env:
           ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
           AWS_REGION: ${{ vars.AWS_REGION }}
+          SECRET_NAME: ${{ vars.SECRET_NAME }}
           OIDC_TOKEN: ${{ steps.oidc.outputs.result }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           REPO_FULL: ${{ github.repository }}
@@ -67,7 +69,7 @@ jobs:
           echo ""
           echo "  # 1. Pull the GitHub admin PAT from Secrets Manager"
           echo "  PAT=\$(aws secretsmanager get-secret-value \\"
-          echo "    --secret-id demo/github-pat \\"
+          echo "    --secret-id $SECRET_NAME \\"
           echo "    --query SecretString --output text)"
           echo ""
           echo "  # 2. Force-merge your own PR using the stolen PAT"

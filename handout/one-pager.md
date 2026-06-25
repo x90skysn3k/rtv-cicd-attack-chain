@@ -62,7 +62,7 @@ Attendee landing page: **`https://x90sky.sh/rtv`**
 
 Public Terraform bundle: **`https://github.com/x90skysn3k/rtv-cicd-attack-chain`**
 
-Deploys the full attack chain infrastructure in an AWS account you own. Rebuild Part A and Part B, then use the included detection pack to validate CloudTrail and EventBridge coverage against the resulting activity.
+Deploys the full attack chain infrastructure in a dedicated, empty AWS account you control. Rebuild Part A and Part B, then use the included detection pack to validate CloudTrail and EventBridge coverage against the resulting activity.
 
 ### Contact
 

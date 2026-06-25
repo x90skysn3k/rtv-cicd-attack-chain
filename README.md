@@ -27,6 +27,10 @@ Provision the student facing AWS side.
 
 ```bash
 cp terraform/demo-account/terraform.tfvars.example terraform/demo-account/terraform.tfvars
+# Edit terraform/demo-account/terraform.tfvars before apply:
+#   aws_account_id = "123456789012"
+#   github_org = "throwaway-org"
+#   github_repo = "cicd-demo"
 terraform -chdir=terraform/demo-account init
 terraform -chdir=terraform/demo-account apply
 ```
@@ -34,11 +38,14 @@ terraform -chdir=terraform/demo-account apply
 Bootstrap the public demo repository and seed the PAT into Secrets Manager.
 
 ```bash
-export DEMO_ORG=<throwaway org>
+export DEMO_ORG=throwaway-org
 export DEMO_REPO=cicd-demo
 export AWS_REGION=us-east-1
 export AWS_ROLE_ARN=$(terraform -chdir=terraform/demo-account output -raw role_arn)
-export PAT_VALUE=<classic PAT minted by the throwaway demo user>
+export SECRET_NAME=$(terraform -chdir=terraform/demo-account output -raw secret_name)
+export EXPECTED_AWS_ACCOUNT_ID=123456789012
+export EXPECTED_GITHUB_USER=throwaway-user
+export PAT_VALUE=classic_pat_value_from_throwaway_user
 ./github/setup-repo.sh
 ```
 
@@ -51,7 +58,7 @@ Enable the required repository settings in GitHub.
 Install and start the runner pool.
 
 ```bash
-export DEMO_ORG=<throwaway org>
+export DEMO_ORG=throwaway-org
 export DEMO_REPO=cicd-demo
 export RUNNER_COUNT=10
 ./runner-pool/install-runners.sh
@@ -66,6 +73,9 @@ Provision the speaker side.
 
 ```bash
 cp terraform/speaker-demo/terraform.tfvars.example terraform/speaker-demo/terraform.tfvars
+# Edit terraform/speaker-demo/terraform.tfvars before apply:
+#   aws_account_id = "123456789012"
+#   name_prefix = "rtv-speaker-demo"
 terraform -chdir=terraform/speaker-demo init
 terraform -chdir=terraform/speaker-demo apply
 ```
@@ -75,7 +85,8 @@ Export script inputs.
 ```bash
 export LAMBDA_EXEC_ROLE_ARN=$(terraform -chdir=terraform/speaker-demo output -raw lambda_exec_role_arn)
 export ELEVATED_ROLE_ARN=$(terraform -chdir=terraform/speaker-demo output -raw elevated_chain_target_arn)
-export AWS_REGION=$(terraform -chdir=terraform/speaker-demo output -raw aws_region 2>/dev/null || echo us-east-1)
+export AWS_REGION=$(terraform -chdir=terraform/speaker-demo output -raw aws_region)
+export NAME_PREFIX=$(terraform -chdir=terraform/speaker-demo output -raw name_prefix)
 ```
 
 Run the projector sequence.
@@ -96,6 +107,9 @@ Deploy the detection pack before rehearsal.
 
 ```bash
 cp terraform/detection-rules/terraform.tfvars.example terraform/detection-rules/terraform.tfvars
+# Edit terraform/detection-rules/terraform.tfvars before apply:
+#   aws_account_id = "123456789012"
+#   name_prefix = "rtv-cicd-detect"
 terraform -chdir=terraform/detection-rules init
 terraform -chdir=terraform/detection-rules apply
 ```
@@ -116,7 +130,8 @@ After each run:
 Then rotate the PAT.
 
 ```bash
-export NEW_PAT_VALUE=<new classic PAT minted by the throwaway demo user>
+export NEW_PAT_VALUE=classic_pat_value_from_throwaway_user
+export EXPECTED_AWS_ACCOUNT_ID=123456789012
 ./github/rotate-pat.sh
 ```
 

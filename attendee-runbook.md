@@ -70,7 +70,7 @@ You should see a `ghp_...` or `github_pat_...` token print. That's a GitHub admi
 
 ## Step 6: Force-merge your own PR
 
-Still in the same terminal. Replace `<PR_NUMBER>` with the number of your own PR (it's in the URL: `pulls/<number>`).
+Still in the same terminal. Replace `<DEMO_ORG>`, `<DEMO_REPO>`, and `<PR_NUMBER>`, or copy the ready made `curl` command from your workflow log.
 
 ```bash
 curl -X PUT \
@@ -104,4 +104,4 @@ This is the tj-actions (March 2025) and TeamPCP (March 2026) pattern, minus the 
 
 ## After the session
 
-You can stand up your own version of this environment against your own AWS account using the public Terraform bundle at `https://github.com/x90skysn3k/rtv-cicd-attack-chain`. It includes the Part A lab, the Part B speaker chain, and the detection pack used in the workshop.
+You can stand up your own version of this environment against a dedicated, empty AWS account you control using the public Terraform bundle at `https://github.com/x90skysn3k/rtv-cicd-attack-chain`. It includes the Part A lab, the Part B speaker chain, and the detection pack used in the workshop.

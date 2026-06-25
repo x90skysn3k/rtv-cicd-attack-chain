@@ -17,7 +17,7 @@ resource "aws_secretsmanager_secret" "pivot_code_hosting" {
 
 resource "aws_secretsmanager_secret_version" "pivot_code_hosting" {
   secret_id     = aws_secretsmanager_secret.pivot_code_hosting.id
-  secret_string = "DEMO-FAKE-ghp_ZXhhbXBsZV9ub3RfcmVhbF9jb21waWxlZF90b2tlbg"
+  secret_string = "DEMO-FAKE-code-hosting-admin-token-not-real"
 }
 
 resource "aws_secretsmanager_secret" "pivot_ci_platform" {

@@ -15,6 +15,7 @@
 #
 # Required env:
 #   NEW_PAT_VALUE  - the new classic PAT minted by the throwaway demo user
+#   EXPECTED_AWS_ACCOUNT_ID - dedicated demo AWS account ID
 #
 # Optional env:
 #   AWS_REGION     - default us-east-1
@@ -23,9 +24,19 @@
 set -euo pipefail
 
 : "${NEW_PAT_VALUE:?set NEW_PAT_VALUE to the newly minted throwaway-user classic PAT}"
+: "${EXPECTED_AWS_ACCOUNT_ID:?set EXPECTED_AWS_ACCOUNT_ID to the dedicated demo AWS account ID}"
 
 AWS_REGION="${AWS_REGION:-us-east-1}"
 SECRET_NAME="${SECRET_NAME:-demo/github-pat}"
+
+echo "[preflight] Verifying active AWS account..."
+ACTUAL_AWS_ACCOUNT_ID=$(aws sts get-caller-identity \
+  --query Account --output text \
+  --region "${AWS_REGION}")
+if [ "$ACTUAL_AWS_ACCOUNT_ID" != "$EXPECTED_AWS_ACCOUNT_ID" ]; then
+  echo "FATAL: active AWS account is ${ACTUAL_AWS_ACCOUNT_ID}, expected ${EXPECTED_AWS_ACCOUNT_ID}" >&2
+  exit 1
+fi
 
 echo "[1/3] Writing new PAT to Secrets Manager (${SECRET_NAME})..."
 aws secretsmanager put-secret-value \

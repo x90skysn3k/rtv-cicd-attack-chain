@@ -4,6 +4,11 @@ variable "aws_region" {
   default     = "us-east-1"
 }
 
+variable "aws_account_id" {
+  description = "Expected dedicated demo AWS account ID. Terraform aborts if the active credentials point anywhere else."
+  type        = string
+}
+
 variable "name_prefix" {
   description = "Name prefix for detection resources"
   type        = string
