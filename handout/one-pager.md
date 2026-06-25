@@ -68,4 +68,3 @@ Deploys the full attack chain infrastructure in an AWS account you own. Rebuild 
 
 - GitHub: `x90skysn3k`
 - Twitter/X: `@x90sky`
-- Brutespray: `github.com/x90skysn3k/brutespray`
