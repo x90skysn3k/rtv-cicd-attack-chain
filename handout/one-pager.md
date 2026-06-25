@@ -58,6 +58,8 @@ Force-merged a pull request you did not own, using AWS credentials that did not 
 
 Attendee landing page: **`https://x90sky.sh/rtv`**
 
+![QR code for https://x90sky.sh/rtv](../docs/rtv-qr.png)
+
 ### Run the full chain at home
 
 Public Terraform bundle: **`https://github.com/x90skysn3k/rtv-cicd-attack-chain`**

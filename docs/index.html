@@ -74,6 +74,31 @@
       color: var(--green);
       margin-bottom: 0.35rem;
     }
+    .qr-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.25rem;
+      margin-top: 1.25rem;
+      border: 1px solid rgba(35, 247, 193, 0.30);
+      background: rgba(6, 18, 31, 0.78);
+      padding: 1.25rem;
+    }
+    .qr-card h2 {
+      margin: 0 0 0.5rem;
+    }
+    .qr-card img {
+      width: min(38vw, 222px);
+      height: auto;
+      background: white;
+      padding: 0.5rem;
+    }
+    @media (max-width: 700px) {
+      .qr-card {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
     a { color: var(--cyan); }
     code, pre {
       color: #dfffee;
@@ -107,6 +132,14 @@
         Fork this repo during the training session.
       </a>
     </div>
+
+    <section class="qr-card" aria-labelledby="qr-title">
+      <div>
+        <h2 id="qr-title">Training URL</h2>
+        <p>Scan this QR code or type <a href="https://x90sky.sh/rtv">https://x90sky.sh/rtv</a>.</p>
+      </div>
+      <img src="rtv-qr.png" width="666" height="666" alt="QR code for https://x90sky.sh/rtv">
+    </section>
 
     <h2>What you need</h2>
     <ul>
