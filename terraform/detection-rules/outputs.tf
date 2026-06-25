@@ -8,6 +8,16 @@ output "eventbridge_rule_names" {
   value       = { for key, rule in aws_cloudwatch_event_rule.detections : key => rule.name }
 }
 
+output "cloudtrail_name" {
+  description = "CloudTrail trail feeding management events to EventBridge"
+  value       = aws_cloudtrail.management_events.name
+}
+
+output "cloudtrail_bucket" {
+  description = "S3 bucket receiving CloudTrail logs"
+  value       = aws_s3_bucket.cloudtrail.bucket
+}
+
 output "next_steps" {
   value = <<-EOT
 

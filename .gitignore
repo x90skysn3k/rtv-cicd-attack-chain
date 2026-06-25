@@ -1,0 +1,10 @@
+# Local Terraform runtime artifacts
+.terraform/
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.*
+terraform.tfvars
+
+# Runner and platform noise
+runner.log
+.DS_Store

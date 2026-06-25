@@ -11,8 +11,8 @@
 # Demonstration narrative:
 #   "This Lambda was never deployed by this org. I created it right now using
 #    the same AWS session an attacker would have after compromising the build
-#    role. It will fire every 2 minutes from now on, and every invocation gives
-#    an attacker fresh credentials and visibility into the account. No traffic
+#    role. It will fire every 2 minutes from now on, and every invocation proves
+#    fresh access and visibility into the account. No traffic
 #    leaves AWS. No endpoint is implanted. No process runs on a host."
 set -euo pipefail
 

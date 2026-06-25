@@ -98,6 +98,8 @@ terraform -chdir=terraform/detection-rules init
 terraform -chdir=terraform/detection-rules apply
 ```
 
+This module creates a CloudTrail management event trail, EventBridge rules, and an SNS topic. The EventBridge rules are enabled for read and write management events so STS and Secrets Manager reads are covered.
+
 See `detections/README.md` for the signal map, raw EventBridge patterns, and Athena hunts.
 
 ## Session cleanup

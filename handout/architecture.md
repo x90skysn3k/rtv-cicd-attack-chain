@@ -35,7 +35,7 @@ Key points:
 ```mermaid
 flowchart TD
     A["Speaker session<br/>(representing compromised<br/>build role)"] -->|"CreateFunction<br/>PutRule<br/>PutTargets"| B["Lambda: cred-relay<br/>EventBridge: rate(2 min)"]
-    B -->|"fires every 2 min"| C["CloudWatch Logs<br/>(credentials refreshed<br/>indefinitely)"]
+    B -->|"fires every 2 min"| C["CloudWatch Logs<br/>(access evidence refreshed<br/>indefinitely)"]
     A -->|"sts:AssumeRole"| D["Elevated role<br/>(cross-account,<br/>broader perms)"]
     D -->|"GetSecretValue x N"| E["Pivot secrets<br/>(code hosting,<br/>CI platform,<br/>data warehouse,<br/>SaaS)"]
     E -.->|"extends reach<br/>outside AWS"| F["Code hosting admin<br/>CI platform admin<br/>Customer data<br/>SaaS admin"]
