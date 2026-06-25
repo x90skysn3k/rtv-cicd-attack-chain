@@ -14,7 +14,6 @@ provider "aws" {
 
 data "aws_caller_identity" "current" {}
 
-data "aws_region" "current" {}
 
 locals {
   common_tags = merge(var.tags, { Purpose = "rtv-demo-detection" })
@@ -103,6 +102,9 @@ resource "aws_sns_topic_policy" "events_publish" {
         Condition = {
           StringEquals = {
             "aws:SourceAccount" = data.aws_caller_identity.current.account_id
+          }
+          ArnLike = {
+            "aws:SourceArn" = "arn:aws:events:${var.aws_region}:${data.aws_caller_identity.current.account_id}:rule/${var.name_prefix}-*"
           }
         }
       }
