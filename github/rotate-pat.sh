@@ -2,9 +2,9 @@
 # Rotates the GitHub PAT stored in Secrets Manager.
 #
 # GitHub does not expose classic-PAT creation via API, so the new PAT must
-# be minted manually in the GitHub UI (Settings > Developer settings >
-# Personal access tokens > Classic) with `repo` scope on the throwaway demo
-# org. Expiry <= 30 days is recommended.
+# be minted manually in the GitHub UI by the dedicated throwaway demo user
+# (Settings > Developer settings > Personal access tokens > Classic) with
+# `repo` scope. Expiry <= 30 days is recommended.
 #
 # This script takes the freshly-minted PAT and:
 #   1. Writes it into Secrets Manager (overwriting the old value)
@@ -14,7 +14,7 @@
 # PAT id).
 #
 # Required env:
-#   NEW_PAT_VALUE  - the new classic PAT
+#   NEW_PAT_VALUE  - the new classic PAT minted by the throwaway demo user
 #
 # Optional env:
 #   AWS_REGION     - default us-east-1
@@ -22,7 +22,7 @@
 
 set -euo pipefail
 
-: "${NEW_PAT_VALUE:?set NEW_PAT_VALUE to the newly-minted classic PAT}"
+: "${NEW_PAT_VALUE:?set NEW_PAT_VALUE to the newly minted throwaway-user classic PAT}"
 
 AWS_REGION="${AWS_REGION:-us-east-1}"
 SECRET_NAME="${SECRET_NAME:-demo/github-pat}"

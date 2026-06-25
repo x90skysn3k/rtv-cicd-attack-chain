@@ -4,9 +4,11 @@ Hands on cloud native CI/CD red team lab for DEF CON 34 Red Team Village.
 
 This repository contains the public reproduction bundle for the workshop and paired tactic. It deploys a deliberately vulnerable GitHub Actions and AWS lab that demonstrates pull request poisoning, GitHub OIDC to AWS STS credential theft, Secrets Manager pivoting, Lambda and EventBridge persistence, IAM role chaining, and CloudTrail based detections.
 
+Live training landing page: `https://x90sky.sh/rtv`. The same static page lives in `docs/index.html` for GitHub Pages or any external redirect.
+
 ## Safety model
 
-Use a dedicated AWS account and a throwaway GitHub organization. Do not run this in an account, organization, or repository that contains real work.
+Use a dedicated AWS account, a throwaway GitHub organization, and a dedicated throwaway GitHub user that owns nothing except the demo org and repo. Do not run this in an account, organization, or repository that contains real work.
 
 The attendee role is intentionally narrow. It can call `secretsmanager:GetSecretValue` on one secret. The speaker demo uses a separate Terraform root and separate credentials for the persistence and pivot stages.
 
@@ -14,9 +16,9 @@ The attendee role is intentionally narrow. It can call `secretsmanager:GetSecret
 
 * Terraform 1.5 or newer
 * AWS CLI authenticated to a dedicated demo account
-* GitHub CLI authenticated as owner of the throwaway GitHub organization
+* GitHub CLI authenticated as the dedicated throwaway GitHub user that owns the demo organization
 * jq, curl, and zip on the speaker machine
-* A classic GitHub PAT with `repo` scope for the throwaway organization
+* A classic GitHub PAT with `repo` scope minted by that throwaway user. Do not use a personal or work account token.
 * A laptop or LAN attached host for 10 to 15 self hosted GitHub Actions runners
 
 ## Part A: attendee hands on lab
@@ -36,7 +38,7 @@ export DEMO_ORG=<throwaway org>
 export DEMO_REPO=cicd-demo
 export AWS_REGION=us-east-1
 export AWS_ROLE_ARN=$(terraform -chdir=terraform/demo-account output -raw role_arn)
-export PAT_VALUE=<classic PAT with repo scope>
+export PAT_VALUE=<classic PAT minted by the throwaway demo user>
 ./github/setup-repo.sh
 ```
 
@@ -114,7 +116,7 @@ After each run:
 Then rotate the PAT.
 
 ```bash
-export NEW_PAT_VALUE=<new classic PAT>
+export NEW_PAT_VALUE=<new classic PAT minted by the throwaway demo user>
 ./github/rotate-pat.sh
 ```
 

@@ -7,7 +7,8 @@ Use this checklist for rehearsal, conference setup, and teardown. Run every comm
 * Create or verify the dedicated AWS account.
 * Add a $50 AWS budget alert.
 * Create or verify the throwaway GitHub organization.
-* Mint a classic GitHub PAT with `repo` scope for the throwaway organization.
+* Create or verify the dedicated throwaway GitHub user. It must own nothing except the demo org and repo.
+* Mint a classic GitHub PAT with `repo` scope from that throwaway user. Do not use a personal or work token.
 * Confirm the PAT expires within 30 days.
 * Confirm local tools are present: `terraform`, `gh`, `aws`, `jq`, `curl`, and `zip`.
 
@@ -22,7 +23,7 @@ export DEMO_ORG=<throwaway org>
 export DEMO_REPO=cicd-demo
 export AWS_REGION=us-east-1
 export AWS_ROLE_ARN=$(terraform -chdir=terraform/demo-account output -raw role_arn)
-export PAT_VALUE=<classic PAT with repo scope>
+export PAT_VALUE=<classic PAT minted by the throwaway demo user>
 ./github/setup-repo.sh
 ```
 
@@ -96,7 +97,7 @@ source /tmp/.rtv-demo-chain-creds
 Rotate the PAT.
 
 ```bash
-export NEW_PAT_VALUE=<new classic PAT>
+export NEW_PAT_VALUE=<new classic PAT minted by the throwaway demo user>
 ./github/rotate-pat.sh
 ```
 

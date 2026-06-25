@@ -4,6 +4,8 @@
 
 By the end of this runbook you will have force-merged your own pull request against a repo you do not own, using AWS credentials that did not exist until you opened the PR.
 
+Live landing page during training: `https://x90sky.sh/rtv`
+
 ## What you need before you start
 
 - A GitHub account (can be freshly created).
@@ -64,7 +66,7 @@ PAT=$(aws secretsmanager get-secret-value \
 echo "$PAT"
 ```
 
-You should see a `ghp_...` or `github_pat_...` token print. That's a GitHub admin PAT with `repo` scope on the demo org. It was never supposed to leave AWS.
+You should see a `ghp_...` or `github_pat_...` token print. That's a GitHub admin PAT for the isolated demo org only. It was never supposed to leave AWS.
 
 ## Step 6: Force-merge your own PR
 

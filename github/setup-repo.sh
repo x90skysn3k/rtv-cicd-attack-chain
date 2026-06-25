@@ -3,16 +3,16 @@
 #
 # Prereqs:
 #   - Terraform applied (role_arn, secret_name outputs available)
-#   - gh CLI authenticated as admin of the throwaway demo org
+#   - gh CLI authenticated as the dedicated throwaway org owner
 #   - aws CLI configured for the demo account
-#   - A classic GitHub PAT with `repo` scope, created manually via GitHub UI
+#   - A classic GitHub PAT with `repo` scope, minted by the throwaway owner
 #
 # Required env:
 #   DEMO_ORG       - throwaway GitHub org name
 #   DEMO_REPO      - repo name (default: cicd-demo)
 #   AWS_REGION     - default: us-east-1
 #   AWS_ROLE_ARN   - from terraform output role_arn
-#   PAT_VALUE      - the GitHub PAT to store in Secrets Manager
+#   PAT_VALUE      - GitHub PAT minted by the throwaway owner; never use a personal or work token
 #
 # Optional:
 #   SECRET_NAME    - default: demo/github-pat
@@ -21,7 +21,7 @@ set -euo pipefail
 
 : "${DEMO_ORG:?set DEMO_ORG}"
 : "${AWS_ROLE_ARN:?set AWS_ROLE_ARN from terraform output}"
-: "${PAT_VALUE:?set PAT_VALUE (classic PAT with repo scope on the demo org)}"
+: "${PAT_VALUE:?set PAT_VALUE (classic PAT minted by the throwaway demo user)}"
 
 DEMO_REPO="${DEMO_REPO:-cicd-demo}"
 AWS_REGION="${AWS_REGION:-us-east-1}"

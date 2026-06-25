@@ -9,9 +9,10 @@ Each of 10 to 15 attendees forks a public demo repo, opens a PR against it, read
 ## Prerequisites (one-time)
 
 - AWS account dedicated to this demo. Nothing else in it. Budget alert at $50.
-- Throwaway GitHub org (free tier fine). No other repos, no other members. Admin user = speaker.
-- GitHub PAT (classic) with `repo` scope on the demo org. Create via GitHub UI, paste into `PAT_VALUE` env var for `setup-repo.sh`. Expiry: 30 days or less.
-- Local tools: `terraform`, `gh` CLI authenticated as org admin, `aws` CLI, `jq`.
+- Throwaway GitHub org (free tier fine). No other repos, no shared members.
+- Dedicated throwaway GitHub user as org owner. The user must have no personal repos and no access to any other org.
+- GitHub PAT (classic) with `repo` scope minted by the throwaway user. Create via GitHub UI, paste into `PAT_VALUE` env var for `setup-repo.sh`. Expiry: 30 days or less.
+- Local tools: `terraform`, `gh` CLI authenticated as the throwaway org owner, `aws` CLI, `jq`.
 - Demo laptop or travel-router-attached machine for the runner pool.
 
 ## Phase 1 build order (what's in this tree now)
@@ -36,7 +37,7 @@ Each of 10 to 15 attendees forks a public demo repo, opens a PR against it, read
    export DEMO_ORG=<org>
    export DEMO_REPO=cicd-demo
    export AWS_REGION=us-east-1
-   export PAT_VALUE=<github-pat-classic-with-repo-scope>
+   export PAT_VALUE=<classic PAT minted by the throwaway demo user>
    export AWS_ROLE_ARN=<terraform output role_arn>
    ./github/setup-repo.sh
    ```

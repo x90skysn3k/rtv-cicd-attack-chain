@@ -41,15 +41,6 @@ resource "aws_secretsmanager_secret" "github_pat" {
   }
 }
 
-# Initial value so the secret exists after apply; setup-repo.sh overwrites it.
-resource "aws_secretsmanager_secret_version" "github_pat_initial" {
-  secret_id     = aws_secretsmanager_secret.github_pat.id
-  secret_string = "ROTATE_ME_AFTER_APPLY"
-
-  lifecycle {
-    ignore_changes = [secret_string] # setup-repo.sh manages the real value
-  }
-}
 
 # IAM role trusted for OIDC from the demo repo on pull_request events.
 resource "aws_iam_role" "github_actions_demo" {
@@ -69,8 +60,11 @@ resource "aws_iam_role" "github_actions_demo" {
           "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
         }
         StringLike = {
-          # Accept PR-triggered runs from the demo repo. Fork PRs use this sub.
-          "token.actions.githubusercontent.com:sub" = "repo:${var.github_org}/${var.github_repo}:pull_request"
+          # Accept PR-triggered runs from the demo repo. The second pattern covers GitHub immutable OIDC subjects.
+          "token.actions.githubusercontent.com:sub" = [
+            "repo:${var.github_org}/${var.github_repo}:pull_request",
+            "repo:${var.github_org}@*/${var.github_repo}@*:pull_request"
+          ]
         }
       }
     }]

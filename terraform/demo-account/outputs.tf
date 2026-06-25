@@ -26,7 +26,7 @@ output "next_steps" {
   value = <<-EOT
 
     1. Populate the PAT (manual):
-       export PAT_VALUE='<github-pat-classic-with-repo-scope>'
+       export PAT_VALUE='<classic PAT minted by the throwaway demo user>'
        aws secretsmanager put-secret-value \
          --secret-id ${aws_secretsmanager_secret.github_pat.name} \
          --secret-string "$PAT_VALUE" \

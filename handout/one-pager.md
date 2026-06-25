@@ -54,6 +54,10 @@ Force-merged a pull request you did not own, using AWS credentials that did not 
 - OIDC-trusted roles should be scoped per-workflow, per-repo, per-branch — never shared, never broad.
 - The merge API is not a security boundary if your PAT has `repo` scope. Gate merges through branch protection + required reviews that cannot be self-approved, and treat every admin PAT as infrastructure.
 
+### Live training docs
+
+Attendee landing page: **`https://x90sky.sh/rtv`**
+
 ### Run the full chain at home
 
 Public Terraform bundle: **`https://github.com/x90skysn3k/rtv-cicd-attack-chain`**
