@@ -198,6 +198,39 @@ resource "aws_sns_topic_subscription" "email" {
   endpoint  = var.alert_email
 }
 
+resource "aws_cloudwatch_log_group" "detections" {
+  name              = "/aws/events/${var.name_prefix}"
+  retention_in_days = 14
+
+  tags = local.common_tags
+}
+
+resource "aws_cloudwatch_log_resource_policy" "events_publish" {
+  policy_name = "${var.name_prefix}-eventbridge-logs"
+
+  policy_document = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "AllowEventBridgeLogs"
+        Effect = "Allow"
+        Principal = {
+          Service = [
+            "events.amazonaws.com",
+            "delivery.logs.amazonaws.com"
+          ]
+        }
+        Action = [
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ]
+        Resource = "${aws_cloudwatch_log_group.detections.arn}:*"
+      }
+    ]
+  })
+}
+
+
 resource "aws_cloudwatch_event_rule" "detections" {
   for_each = local.rules
 
@@ -236,4 +269,12 @@ resource "aws_cloudwatch_event_target" "sns" {
       time       = "<time>"
     })
   }
+}
+
+resource "aws_cloudwatch_event_target" "logs" {
+  for_each = local.rules
+
+  rule      = aws_cloudwatch_event_rule.detections[each.key].name
+  target_id = "cloudwatch-log"
+  arn       = aws_cloudwatch_log_group.detections.arn
 }

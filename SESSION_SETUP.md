@@ -64,7 +64,7 @@ terraform -chdir=terraform/detection-rules init
 terraform -chdir=terraform/detection-rules apply
 ```
 
-The detection module creates the CloudTrail management event trail required for the SNS alerts. It enables read and write management events so STS and Secrets Manager reads are visible to EventBridge.
+The detection module creates the CloudTrail management event trail required for the SNS alerts and raw CloudWatch Logs matches. It enables read and write management events so STS and Secrets Manager reads are visible to EventBridge.
 
 If you set `alert_email`, confirm the SNS subscription before rehearsal.
 
@@ -73,7 +73,7 @@ If you set `alert_email`, confirm the SNS subscription before rehearsal.
 * Walk `attendee-runbook.md` with a separate GitHub account.
 * Open at least 5 concurrent PRs and confirm the runner pool clears the queue.
 * Run the projector scripts twice, including teardown.
-* Confirm the detection SNS topic receives events from Part A and Part B. Use `terraform -chdir=terraform/detection-rules output -raw sns_topic_arn` to identify the topic.
+* Confirm the detection SNS topic or CloudWatch log group receives events from Part A and Part B. Use `terraform -chdir=terraform/detection-rules output -raw cloudwatch_log_group` for the log group and `terraform -chdir=terraform/detection-rules output -raw sns_topic_arn` for the topic.
 * Confirm `handout/one-pager.md` has the public bundle URL.
 
 Projector run order:

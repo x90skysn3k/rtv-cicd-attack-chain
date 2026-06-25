@@ -14,7 +14,7 @@ This pack turns the Red Team Village demo into detection validation material. It
 
 * `cloudtrail-athena.sql` contains copy ready CloudTrail Lake or Athena style hunts. Replace table and account values before use.
 * `eventbridge-patterns.json` contains raw EventBridge event patterns that mirror the Terraform module.
-* `../terraform/detection-rules/` deploys a CloudTrail management event trail, EventBridge rules, and an SNS topic for live demo alerts.
+* `../terraform/detection-rules/` deploys a CloudTrail management event trail, EventBridge rules, an SNS topic, and a CloudWatch Logs target for live demo alerts.
 
 ## Demo usage
 
@@ -27,6 +27,6 @@ terraform init
 terraform apply
 ```
 
-The module creates a CloudTrail trail with read and write management events enabled. The EventBridge rules use `ENABLED_WITH_ALL_CLOUDTRAIL_MANAGEMENT_EVENTS` so read style signals such as `GetSecretValue`, `AssumeRole`, and `AssumeRoleWithWebIdentity` can reach the SNS topic.
+The module creates a CloudTrail trail with read and write management events enabled. The EventBridge rules use `ENABLED_WITH_ALL_CLOUDTRAIL_MANAGEMENT_EVENTS` so read style signals such as `GetSecretValue`, `AssumeRole`, and `AssumeRoleWithWebIdentity` can reach SNS and CloudWatch Logs.
 
 The rules are intentionally high signal for the lab account. In production, scope them to known build role ARNs, known GitHub OIDC providers, approved workflow subjects, and high value secret tags.
