@@ -1,0 +1,7 @@
+aws_region  = "us-east-1"
+name_prefix = "rtv-cicd-detect"
+alert_email = ""
+
+tags = {
+  Project = "defcon-34-rtv"
+}

@@ -1,0 +1,42 @@
+{
+  "github_oidc_assume_role": {
+    "source": ["aws.sts"],
+    "detail-type": ["AWS API Call via CloudTrail"],
+    "detail": {
+      "eventSource": ["sts.amazonaws.com"],
+      "eventName": ["AssumeRoleWithWebIdentity"]
+    }
+  },
+  "build_session_secret_read": {
+    "source": ["aws.secretsmanager"],
+    "detail-type": ["AWS API Call via CloudTrail"],
+    "detail": {
+      "eventSource": ["secretsmanager.amazonaws.com"],
+      "eventName": ["GetSecretValue"]
+    }
+  },
+  "build_session_lambda_write": {
+    "source": ["aws.lambda"],
+    "detail-type": ["AWS API Call via CloudTrail"],
+    "detail": {
+      "eventSource": ["lambda.amazonaws.com"],
+      "eventName": ["CreateFunction", "UpdateFunctionCode"]
+    }
+  },
+  "build_session_schedule_write": {
+    "source": ["aws.events"],
+    "detail-type": ["AWS API Call via CloudTrail"],
+    "detail": {
+      "eventSource": ["events.amazonaws.com"],
+      "eventName": ["PutRule", "PutTargets"]
+    }
+  },
+  "role_chain_abuse": {
+    "source": ["aws.sts"],
+    "detail-type": ["AWS API Call via CloudTrail"],
+    "detail": {
+      "eventSource": ["sts.amazonaws.com"],
+      "eventName": ["AssumeRole"]
+    }
+  }
+}

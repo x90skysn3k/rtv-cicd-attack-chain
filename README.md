@@ -1,0 +1,137 @@
+# Trust the Pipeline, Lose the Kingdom
+
+Hands on cloud native CI/CD red team lab for DEF CON 34 Red Team Village.
+
+This repository contains the public reproduction bundle for the workshop and paired tactic. It deploys a deliberately vulnerable GitHub Actions and AWS lab that demonstrates pull request poisoning, GitHub OIDC to AWS STS credential theft, Secrets Manager pivoting, Lambda and EventBridge persistence, IAM role chaining, and CloudTrail based detections.
+
+## Safety model
+
+Use a dedicated AWS account and a throwaway GitHub organization. Do not run this in an account, organization, or repository that contains real work.
+
+The attendee role is intentionally narrow. It can call `secretsmanager:GetSecretValue` on one secret. The speaker demo uses a separate Terraform root and separate credentials for the persistence and pivot stages.
+
+## Prerequisites
+
+* Terraform 1.5 or newer
+* AWS CLI authenticated to a dedicated demo account
+* GitHub CLI authenticated as owner of the throwaway GitHub organization
+* jq, curl, and zip on the speaker machine
+* A classic GitHub PAT with `repo` scope for the throwaway organization
+* A laptop or LAN attached host for 10 to 15 self hosted GitHub Actions runners
+
+## Part A: attendee hands on lab
+
+Provision the student facing AWS side.
+
+```bash
+cp terraform/demo-account/terraform.tfvars.example terraform/demo-account/terraform.tfvars
+terraform -chdir=terraform/demo-account init
+terraform -chdir=terraform/demo-account apply
+```
+
+Bootstrap the public demo repository and seed the PAT into Secrets Manager.
+
+```bash
+export DEMO_ORG=<throwaway org>
+export DEMO_REPO=cicd-demo
+export AWS_REGION=us-east-1
+export AWS_ROLE_ARN=$(terraform -chdir=terraform/demo-account output -raw role_arn)
+export PAT_VALUE=<classic PAT with repo scope>
+./github/setup-repo.sh
+```
+
+Enable the required repository settings in GitHub.
+
+* Actions general settings: run workflows from fork pull requests
+* Actions general settings: do not require approval for all outside collaborators
+* Actions runners page: confirm all demo runners are idle before attendees begin
+
+Install and start the runner pool.
+
+```bash
+export DEMO_ORG=<throwaway org>
+export DEMO_REPO=cicd-demo
+export RUNNER_COUNT=10
+./runner-pool/install-runners.sh
+./runner-pool/start-runners.sh
+```
+
+Walk `attendee-runbook.md` with a separate GitHub account before the session.
+
+## Part B: speaker projector lab
+
+Provision the speaker side.
+
+```bash
+cp terraform/speaker-demo/terraform.tfvars.example terraform/speaker-demo/terraform.tfvars
+terraform -chdir=terraform/speaker-demo init
+terraform -chdir=terraform/speaker-demo apply
+```
+
+Export script inputs.
+
+```bash
+export LAMBDA_EXEC_ROLE_ARN=$(terraform -chdir=terraform/speaker-demo output -raw lambda_exec_role_arn)
+export ELEVATED_ROLE_ARN=$(terraform -chdir=terraform/speaker-demo output -raw elevated_chain_target_arn)
+export AWS_REGION=$(terraform -chdir=terraform/speaker-demo output -raw aws_region 2>/dev/null || echo us-east-1)
+```
+
+Run the projector sequence.
+
+```bash
+./speaker-scripts/01-deploy-persistence.sh
+./speaker-scripts/02-abuse-iam-chain.sh
+source /tmp/.rtv-demo-chain-creds
+./speaker-scripts/03-pivot-secrets.sh
+./speaker-scripts/99-teardown.sh
+```
+
+Rehearse the full sequence twice, including teardown.
+
+## Detection validation
+
+Deploy the detection pack before rehearsal.
+
+```bash
+cp terraform/detection-rules/terraform.tfvars.example terraform/detection-rules/terraform.tfvars
+terraform -chdir=terraform/detection-rules init
+terraform -chdir=terraform/detection-rules apply
+```
+
+See `detections/README.md` for the signal map, raw EventBridge patterns, and Athena hunts.
+
+## Session cleanup
+
+After each run:
+
+```bash
+./github/cleanup-runs.sh
+./runner-pool/stop-runners.sh
+```
+
+Then rotate the PAT.
+
+```bash
+export NEW_PAT_VALUE=<new classic PAT>
+./github/rotate-pat.sh
+```
+
+Revoke the old PAT in the GitHub UI. Destroy Terraform resources when the session series is complete.
+
+```bash
+terraform -chdir=terraform/detection-rules destroy
+terraform -chdir=terraform/speaker-demo destroy
+terraform -chdir=terraform/demo-account destroy
+```
+
+## Repository layout
+
+* `attendee-runbook.md`: attendee hands on instructions
+* `terraform/demo-account/`: public repo, OIDC role, and one PAT secret
+* `terraform/speaker-demo/`: Lambda persistence role, elevated chain role, and pivot secrets
+* `terraform/detection-rules/`: EventBridge and SNS detection pack
+* `github/`: repo bootstrap, PAT rotation, and workflow cleanup scripts
+* `runner-pool/`: self hosted runner install, start, and stop scripts
+* `speaker-scripts/`: live projector demo scripts
+* `detections/`: raw detections and CloudTrail hunts
+* `handout/`: architecture and one page reference material

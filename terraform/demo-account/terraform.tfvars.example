@@ -1,0 +1,3 @@
+aws_region  = "us-east-1"
+github_org  = "your-throwaway-org"
+github_repo = "cicd-demo"
