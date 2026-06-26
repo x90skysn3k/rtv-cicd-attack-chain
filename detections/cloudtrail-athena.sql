@@ -28,7 +28,7 @@ WHERE eventsource = 'secretsmanager.amazonaws.com'
   AND (
     useridentity.arn LIKE '%assumed-role/rtv-demo-oidc-role/%'
     OR useridentity.sessioncontext.sessionissuer.arn LIKE '%rtv-demo%'
-    OR useridentity.sessioncontext.sessionissuer.arn LIKE '%rtv-speaker-demo%'
+    OR useridentity.sessioncontext.sessionissuer.arn LIKE '%rtv-post-compromise-demo%'
     OR useridentity.sessioncontext.sessionissuer.arn LIKE '%elevated-chain-target%'
   )
 ORDER BY eventtime DESC;

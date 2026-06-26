@@ -10,17 +10,17 @@ Force-merged a pull request you did not own, using AWS credentials that did not 
 ### The chain (Part A, hands-on)
 
 1. **Fork** the demo repo and **open a PR** from your fork
-2. `pull_request_target` workflow fires on the speaker's runner with GitHub OIDC trust
+2. `pull_request_target` workflow fires on the lab runner with GitHub OIDC trust
 3. Workflow mints STS credentials, prints them to the log (**public**)
 4. You read the credentials from your own PR's Actions page
 5. `aws secretsmanager get-secret-value` pulls a GitHub admin PAT
 6. `curl -X PUT .../pulls/N/merge` force-merges your own PR
 
-### The chain (Part B, speaker demo)
+### What the presenter discusses next
 
-7. Deploy Lambda + EventBridge schedule from the compromised session (persistence, all in-AWS)
-8. `sts:AssumeRole` chain into an elevated role (privilege escalation, no lateral movement needed)
-9. `GetSecretValue` on pivot secrets (code hosting admin, CI platform admin, data warehouse, SaaS)
+7. Native cloud persistence can be built with services such as serverless functions and schedules
+8. `sts:AssumeRole` trust chains can turn a scoped build role into a broader role
+9. `GetSecretValue` on higher-value secrets is where cloud compromise can become enterprise compromise
 
 ### Real-world precedent
 
@@ -60,11 +60,11 @@ Attendee landing page: **`https://x90sky.sh/rtv`**
 
 ![QR code for https://x90sky.sh/rtv](../docs/rtv-qr.png)
 
-### Run the full chain at home
+### Reproduce the attendee lab at home
 
-Public Terraform bundle: **`https://github.com/x90skysn3k/rtv-cicd-attack-chain`**
+Public bundle: **`https://github.com/x90skysn3k/rtv-cicd-attack-chain`**
 
-Deploys the full attack chain infrastructure in a dedicated, empty AWS account you control. Rebuild Part A and Part B, then use the included detection pack to validate CloudTrail and EventBridge coverage against the resulting activity.
+Use it with a dedicated, empty AWS account you control to review the attendee lab, the safe demo repository, and public detection examples. Presenter-only infrastructure and operator runbooks are intentionally not published.
 
 ### Contact
 

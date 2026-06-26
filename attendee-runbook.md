@@ -18,7 +18,7 @@ You do NOT need an AWS account of your own. You'll use temporary credentials min
 
 ## Step 1: Fork the demo repo
 
-1. Browse to the demo repo URL (speaker will display it at session start).
+1. Browse to the demo repo URL the presenter displays at session start.
 2. Click **Fork** in the top right. Fork into your own account.
 
 ## Step 2: Open a PR from your fork
@@ -63,7 +63,7 @@ export AWS_REGION=us-east-1
 
 **Copy the four `export` lines exactly as printed and paste them into your own terminal.**
 
-You now hold live AWS credentials against the speaker's account. You have 15 minutes before they expire.
+You now hold live AWS credentials against the lab account. You have 15 minutes before they expire.
 
 ## Step 5: Pull the GitHub admin PAT from Secrets Manager
 
@@ -111,8 +111,8 @@ This is the tj-actions (March 2025) and TeamPCP (March 2026) pattern, minus the 
 - **`The security token included in the request is expired`**: your session timed out (15 min). Close and reopen your PR to get a fresh workflow run.
 - **`You do not have permission to merge this pull request`**: the PAT value is wrong or the PAT was rotated. Check `echo "$PAT"` shows something that looks like a token.
 - **`Pull Request is not mergeable`**: someone else merged your PR. Check the PR UI. If it says Merged, you already won.
-- **Workflow does not fire**: speaker will confirm the runner pool is up. If it's a queueing issue, wait. If it's a config issue, speaker will re-check "Fork pull request workflows from outside collaborators."
+- **Workflow does not fire**: the presenter will confirm the lab runner pool is up. If it's a queueing issue, wait. If it's a config issue, the presenter will re-check "Fork pull request workflows from outside collaborators."
 
 ## After the session
 
-You can stand up your own version of this environment against a dedicated, empty AWS account you control using the public Terraform bundle at `https://github.com/x90skysn3k/rtv-cicd-attack-chain`. It includes the Part A lab, the Part B speaker chain, and the detection pack used in the workshop.
+You can review or reproduce the attendee-safe lab path against a dedicated, empty AWS account you control using the public bundle at `https://github.com/x90skysn3k/rtv-cicd-attack-chain`. The bundle includes the Part A lab, public handouts, and detection examples; presenter-only infrastructure and operator runbooks stay private.

@@ -6,7 +6,7 @@
 flowchart TD
     A["Attendee<br/>(GitHub account)"] -->|fork| B[Demo repo]
     A -->|open PR from fork| C[Pull request<br/>(status: Open)]
-    C -->|pull_request_target fires| D[Self-hosted runner<br/>(speaker's machine)]
+    C -->|pull_request_target fires| D[Self-hosted lab runner]
     D -->|getIDToken| E["GitHub OIDC token<br/>aud=sts.amazonaws.com<br/>sub=repo:ORG/REPO:pull_request"]
     E -->|assume-role-with-web-identity| F["AWS IAM role<br/>rtv-demo-oidc-role<br/>(GetSecretValue only)"]
     F -->|STS credentials| G["Workflow log<br/>(PUBLIC)"]
@@ -30,11 +30,11 @@ Key points:
 - The force-merge call uses a credential that did not exist when the PR was
   opened.
 
-## Part B: Speaker projector flow (post-Part A)
+## Post-compromise discussion flow (presenter implementation not published)
 
 ```mermaid
 flowchart TD
-    A["Speaker session<br/>(representing compromised<br/>build role)"] -->|"CreateFunction<br/>PutRule<br/>PutTargets"| B["Lambda: cred-relay<br/>EventBridge: rate(2 min)"]
+    A["Compromised build role<br/>(conceptual)"] -->|"CreateFunction<br/>PutRule<br/>PutTargets"| B["Lambda-style persistence<br/>scheduled execution"]
     B -->|"fires every 2 min"| C["CloudWatch Logs<br/>(access evidence refreshed<br/>indefinitely)"]
     A -->|"sts:AssumeRole"| D["Elevated role<br/>(cross-account,<br/>broader perms)"]
     D -->|"GetSecretValue x N"| E["Pivot secrets<br/>(code hosting,<br/>CI platform,<br/>data warehouse,<br/>SaaS)"]
@@ -61,7 +61,7 @@ flowchart LR
       A2["GitHub audit log:<br/>PR merged by PAT-based<br/>caller, no human review"]
       A3["Config audit:<br/>pull_request_target +<br/>checkout of PR code"]
     end
-    subgraph "Part B signals"
+    subgraph "Post-compromise discussion signals"
       B1["CloudTrail:<br/>CreateFunction<br/>from build role"]
       B2["CloudTrail:<br/>PutRule from<br/>build role"]
       B3["CloudTrail:<br/>AssumeRole chain<br/>from OIDC session"]

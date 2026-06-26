@@ -31,7 +31,7 @@ resource "aws_iam_openid_connect_provider" "github" {
 }
 
 # Secrets Manager secret that holds the GitHub admin PAT.
-# The value is populated out-of-band by setup-repo.sh after Terraform runs.
+# Populate the value out-of-band with a throwaway lab token after Terraform runs.
 resource "aws_secretsmanager_secret" "github_pat" {
   name                    = var.secret_name
   description             = "GitHub admin PAT for RTV demo. Rotated every session."

@@ -25,23 +25,20 @@ output "aws_region" {
 output "next_steps" {
   value = <<-EOT
 
-    1. Bootstrap the demo repo and seed the PAT:
-       export DEMO_ORG=${var.github_org}
-       export DEMO_REPO=${var.github_repo}
-       export AWS_REGION=${var.aws_region}
-       export AWS_ROLE_ARN=${aws_iam_role.github_actions_demo.arn}
-       export SECRET_NAME=${aws_secretsmanager_secret.github_pat.name}
-       export EXPECTED_AWS_ACCOUNT_ID=${var.aws_account_id}
-       export EXPECTED_GITHUB_USER=throwaway-user
-       export PAT_VALUE=classic_pat_value_from_throwaway_user
-       ./github/setup-repo.sh
+    1. Create a dedicated throwaway GitHub repository from the public demo files:
+       - copy github/workflow.yml to .github/workflows/ci.yml
+       - copy github/demo-repo/ into the repository root
+       - set the workflow variables AWS_ROLE_ARN and SECRET_NAME from these outputs
 
-    2. Install and start runner pool:
-       ./runner-pool/install-runners.sh
-       ./runner-pool/start-runners.sh
+    2. Store a throwaway lab token in Secrets Manager:
+       aws secretsmanager put-secret-value \
+         --secret-id ${aws_secretsmanager_secret.github_pat.name} \
+         --secret-string "classic_pat_value_from_throwaway_user"
 
-    3. Toggle repo settings per plan.md.
+    3. Use a dedicated self-hosted lab runner and enable fork pull request
+       workflows only for the disposable demo repository.
 
-    4. Walk the attendee runbook from a test account end-to-end.
+    4. Walk attendee-runbook.md from a separate test account before using the
+       lab with attendees.
   EOT
 }

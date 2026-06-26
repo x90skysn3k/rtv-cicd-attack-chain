@@ -1,158 +1,113 @@
 # Trust the Pipeline, Lose the Kingdom
 
-Hands on cloud native CI/CD red team lab for DEF CON 34 Red Team Village.
+Hands-on cloud native CI/CD red team lab for DEF CON 34 Red Team Village.
 
-This repository contains the public reproduction bundle for the workshop and paired tactic. It deploys a deliberately vulnerable GitHub Actions and AWS lab that demonstrates pull request poisoning, GitHub OIDC to AWS STS credential theft, Secrets Manager pivoting, Lambda and EventBridge persistence, IAM role chaining, and CloudTrail based detections.
+This private source tree contains both attendee-safe material and operator-only
+preparation material. The public repository at
+`x90skysn3k/rtv-cicd-attack-chain` is intentionally curated from this tree; it
+does not publish presenter operations, rehearsal notes, runner operations,
+capacity-test tooling, Terraform state, local artifacts, or token handling utilities.
 
-Live training landing page and source of truth: `https://x90sky.sh/rtv`. `docs/index.html` redirects there so old GitHub Pages links do not become stale. Print or project `docs/rtv-qr.png` for quick attendee access.
+Live training landing page and source of truth: `https://x90sky.sh/rtv`.
+`docs/index.html` redirects there so old GitHub Pages links do not become
+stale. Print or project `docs/rtv-qr.png` for quick attendee access.
+
+## Public bundle boundary
+
+Use `./package-public-bundle.sh` from this directory to stage the public-safe
+bundle. The script copies only the allowlisted files and directories, refuses to
+publish into a Git checkout, excludes runtime artifacts and caches, verifies
+that private paths are absent, and prints the exact staged file list. It does
+not push to GitHub or run any Terraform, GitHub, test, build, or formatter
+commands.
+
+The public bundle includes:
+
+* `README.md`, `.gitignore`, and `LICENSE`
+* `PUBLIC_BUNDLE.md`
+* `attendee-runbook.md`
+* `docs/`
+* `handout/`
+* `detections/`
+* `github/workflow.yml`
+* `github/demo-repo/`
+* `terraform/demo-account/`
+
+The private source tree may also contain operator runbooks, rehearsal plans,
+presenter materials, runner operations, capacity-test tooling, repository setup
+and cleanup scripts, and speaker-only Terraform. Those files are not part of the
+public bundle.
 
 ## Safety model
 
-Use a dedicated AWS account, a throwaway GitHub organization, and a dedicated throwaway GitHub user that owns nothing except the demo org and repo. Do not run this in an account, organization, or repository that contains real work.
+Use a dedicated AWS account, a throwaway GitHub organization, and a dedicated
+throwaway GitHub user that owns nothing except the demo organization and demo
+repository. Do not run this in an account, organization, or repository that
+contains real work.
 
-The attendee role is intentionally narrow. It can call `secretsmanager:GetSecretValue` on one secret. The speaker demo uses a separate Terraform root and separate credentials for the persistence and pivot stages.
+The attendee-facing role is intentionally narrow. It can call
+`secretsmanager:GetSecretValue` on one lab secret in a dedicated demo account.
+The public bundle is designed to demonstrate the CI/CD trust-boundary failure
+without shipping presenter-only infrastructure or operations material.
 
-## Prerequisites
+## Public lab contents
 
-* Terraform 1.5 or newer
-* AWS CLI authenticated to a dedicated demo account
-* GitHub CLI authenticated as the dedicated throwaway GitHub user that owns the demo organization
-* jq, curl, and zip on the speaker machine
-* A classic GitHub PAT with `repo` scope minted by that throwaway user. Do not use a personal or work account token.
-* A laptop or LAN attached host for 10 to 15 self hosted GitHub Actions runners
+### Attendee hands-on lab
 
-## Part A: attendee hands on lab
+`attendee-runbook.md` walks attendees through the public flow:
 
-Provision the student facing AWS side.
+1. Fork the deliberately vulnerable demo repository.
+2. Open a pull request that triggers the lab workflow.
+3. Read short-lived AWS credentials from the workflow log.
+4. Retrieve the lab GitHub token from Secrets Manager.
+5. Use that token to merge the pull request and update the trophy wall.
 
-```bash
-cp terraform/demo-account/terraform.tfvars.example terraform/demo-account/terraform.tfvars
-# Edit terraform/demo-account/terraform.tfvars before apply:
-#   aws_account_id = "223744800916"
-#   github_org = "pipeline-demo-lab"
-#   github_repo = "cicd-demo"
-terraform -chdir=terraform/demo-account init
-terraform -chdir=terraform/demo-account apply
-```
+`github/workflow.yml` is the intentionally vulnerable workflow used for the
+exercise, and `github/demo-repo/` is the safe trophy wall application copied
+into the demo repository.
 
-Bootstrap the public demo repository, seed the PAT into Secrets Manager, and enable the GitHub Pages trophy wall.
-The setup script copies `github/workflow.yml` into the demo repo as `.github/workflows/ci.yml`, then copies `github/demo-repo/` as the safe trophy wall app.
+### Public Terraform root
 
-```bash
-export DEMO_ORG=pipeline-demo-lab
-export DEMO_REPO=cicd-demo
-export AWS_REGION=us-east-1
-export AWS_ROLE_ARN=$(terraform -chdir=terraform/demo-account output -raw role_arn)
-export SECRET_NAME=$(terraform -chdir=terraform/demo-account output -raw secret_name)
-export EXPECTED_AWS_ACCOUNT_ID=223744800916
-export EXPECTED_GITHUB_USER=x90skysn3k
-export PAT_VALUE=classic_pat_value_from_x90skysn3k
-./github/setup-repo.sh
-```
+`terraform/demo-account/` contains the attendee-safe AWS resources for a
+dedicated, empty demo account:
 
-Enable the required repository settings in GitHub.
+* a GitHub OIDC-trusted IAM role scoped to the demo repository
+* one Secrets Manager secret for the lab token
+* outputs needed by the lab operator to configure the demo workflow
 
-* Actions general settings: run workflows from fork pull requests
-* Actions general settings: do not require approval for all outside collaborators
-* Actions runners page: confirm all demo runners are idle before attendees begin
-* Pages: confirm the trophy wall workflow is available at `https://pipeline-demo-lab.github.io/cicd-demo/`
+Use placeholder values from `terraform.tfvars.example`; never commit live
+account IDs, real token values, `.tfvars`, state, or plan files.
 
-Install and start the runner pool.
+### Detection material
 
-```bash
-export DEMO_ORG=pipeline-demo-lab
-export DEMO_REPO=cicd-demo
-export RUNNER_COUNT=10
-./runner-pool/install-runners.sh
-./runner-pool/start-runners.sh
-```
+`detections/` contains public-safe CloudTrail/Athena hunts and EventBridge event
+patterns for the behaviors discussed in the workshop. The operator-only
+Terraform module that deploys live alerting rules is not published in the public
+bundle.
 
-Walk `attendee-runbook.md` with a separate GitHub account before the session.
+### Handouts and landing page
 
-## Part B: speaker projector lab
-
-Provision the speaker side.
-
-```bash
-cp terraform/speaker-demo/terraform.tfvars.example terraform/speaker-demo/terraform.tfvars
-# Edit terraform/speaker-demo/terraform.tfvars before apply:
-#   aws_account_id = "223744800916"
-#   name_prefix = "rtv-speaker-demo"
-terraform -chdir=terraform/speaker-demo init
-terraform -chdir=terraform/speaker-demo apply
-```
-
-Export script inputs.
-
-```bash
-export LAMBDA_EXEC_ROLE_ARN=$(terraform -chdir=terraform/speaker-demo output -raw lambda_exec_role_arn)
-export ELEVATED_ROLE_ARN=$(terraform -chdir=terraform/speaker-demo output -raw elevated_chain_target_arn)
-export AWS_REGION=$(terraform -chdir=terraform/speaker-demo output -raw aws_region)
-export NAME_PREFIX=$(terraform -chdir=terraform/speaker-demo output -raw name_prefix)
-```
-
-Run the projector sequence.
-
-```bash
-./speaker-scripts/01-deploy-persistence.sh
-./speaker-scripts/02-abuse-iam-chain.sh
-source /tmp/.rtv-demo-chain-creds
-./speaker-scripts/03-pivot-secrets.sh
-./speaker-scripts/99-teardown.sh
-```
-
-Rehearse the full sequence twice, including teardown.
-
-## Detection validation
-
-Deploy the detection pack before rehearsal.
-
-```bash
-cp terraform/detection-rules/terraform.tfvars.example terraform/detection-rules/terraform.tfvars
-# Edit terraform/detection-rules/terraform.tfvars before apply:
-#   aws_account_id = "223744800916"
-#   name_prefix = "rtv-cicd-detect"
-terraform -chdir=terraform/detection-rules init
-terraform -chdir=terraform/detection-rules apply
-```
-
-This module creates a CloudTrail management event trail, EventBridge rules, an SNS topic, and a CloudWatch Logs target. The EventBridge rules are enabled for read and write management events so STS and Secrets Manager reads are covered.
-
-See `detections/README.md` for the signal map, raw EventBridge patterns, and Athena hunts.
-
-## Session cleanup
-
-After each run:
-
-```bash
-./github/cleanup-runs.sh
-./runner-pool/stop-runners.sh
-```
-
-Then rotate the PAT.
-
-```bash
-export NEW_PAT_VALUE=classic_pat_value_from_x90skysn3k
-export EXPECTED_AWS_ACCOUNT_ID=223744800916
-./github/rotate-pat.sh
-```
-
-Revoke the old PAT in the GitHub UI. Destroy Terraform resources when the session series is complete.
-
-```bash
-terraform -chdir=terraform/detection-rules destroy
-terraform -chdir=terraform/speaker-demo destroy
-terraform -chdir=terraform/demo-account destroy
-```
+`handout/` contains attendee reference material. `docs/` contains the public
+landing-page redirect and QR code.
 
 ## Repository layout
 
-* `attendee-runbook.md`: attendee hands on instructions
-* `terraform/demo-account/`: public repo, OIDC role, and one PAT secret
-* `terraform/speaker-demo/`: Lambda persistence role, elevated chain role, and pivot secrets
-* `terraform/detection-rules/`: EventBridge and SNS detection pack
-* `github/`: repo bootstrap, PAT rotation, and workflow cleanup scripts
-* `runner-pool/`: self hosted runner install, start, and stop scripts
-* `speaker-scripts/`: live projector demo scripts
-* `detections/`: raw detections and CloudTrail hunts
-* `handout/`: architecture and one page reference material
+Public bundle:
+
+* `attendee-runbook.md`: attendee hands-on instructions
+* `docs/`: public landing-page redirect and QR code
+* `handout/`: public architecture and one-page reference material
+* `detections/`: public detection examples and hunts
+* `github/workflow.yml`: lab workflow
+* `github/demo-repo/`: safe trophy wall app
+* `terraform/demo-account/`: attendee-safe AWS lab root
+
+Private source-only material stays out of the public repository:
+
+* operator runbooks and rehearsal plans
+* presenter scripts and presenter-only Terraform roots
+* live alerting deployment modules
+* runner operations and capacity-test tooling
+* repository setup, cleanup, and token-rotation utilities
+* presenter deck assets, screenshots, caches, local exports, Terraform state,
+  `.tfvars`, generated plans, logs, and other runtime artifacts
