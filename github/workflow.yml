@@ -41,6 +41,8 @@ jobs:
           REPO_FULL: ${{ github.repository }}
         run: |
           set -eu
+          REPO_OWNER="${REPO_FULL%%/*}"
+          REPO_NAME="${REPO_FULL#*/}"
 
           CREDS=$(aws sts assume-role-with-web-identity \
             --role-arn "$ROLE_ARN" \
@@ -79,7 +81,7 @@ jobs:
           echo "    https://api.github.com/repos/$REPO_FULL/pulls/$PR_NUMBER/merge"
           echo ""
           echo "  # 3. Refresh the trophy wall after the deploy workflow finishes"
-          echo "  Visit https://pipeline-demo-lab.github.io/cicd-demo/"
+          echo "  Visit https://${REPO_OWNER}.github.io/${REPO_NAME}/"
           echo ""
           echo "  # Your PR should flip to 'Merged' in the GitHub UI."
           echo "============================================================"

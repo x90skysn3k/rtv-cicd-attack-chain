@@ -25,27 +25,27 @@ Each of 10 to 15 attendees forks a public demo repo, opens a PR against it, read
    ```
    cp terraform/demo-account/terraform.tfvars.example terraform/demo-account/terraform.tfvars
    # Edit terraform/demo-account/terraform.tfvars before apply:
-   #   aws_account_id = "123456789012"
-   #   github_org = "throwaway-org"
+   #   aws_account_id = "223744800916"
+   #   github_org = "pipeline-demo-lab"
    #   github_repo = "cicd-demo"
    terraform -chdir=terraform/demo-account init
    terraform -chdir=terraform/demo-account apply
    ```
 
 2. **Bootstrap the demo repo** (`github/setup-repo.sh`)
-   - Creates public demo repo in the throwaway org
+   - Creates public demo repo in the configured demo org
    - Pushes `workflow.yml` to `.github/workflows/ci.yml`
    - Sets repo variables `AWS_ROLE_ARN`, `AWS_REGION`, and `SECRET_NAME`
    - Seeds Secrets Manager with the PAT
    ```
-   export DEMO_ORG=throwaway-org
+   export DEMO_ORG=pipeline-demo-lab
    export DEMO_REPO=cicd-demo
    export AWS_REGION=us-east-1
-   export PAT_VALUE=classic_pat_value_from_throwaway_user
+   export PAT_VALUE=classic_pat_value_from_x90skysn3k
    export AWS_ROLE_ARN=$(terraform -chdir=terraform/demo-account output -raw role_arn)
    export SECRET_NAME=$(terraform -chdir=terraform/demo-account output -raw secret_name)
-   export EXPECTED_AWS_ACCOUNT_ID=123456789012
-   export EXPECTED_GITHUB_USER=throwaway-user
+   export EXPECTED_AWS_ACCOUNT_ID=223744800916
+   export EXPECTED_GITHUB_USER=x90skysn3k
    ./github/setup-repo.sh
    ```
 
@@ -53,7 +53,7 @@ Each of 10 to 15 attendees forks a public demo repo, opens a PR against it, read
    - Installs N self-hosted runners on this machine
    - Starts them in the background
    ```
-   export DEMO_ORG=throwaway-org DEMO_REPO=cicd-demo RUNNER_COUNT=10
+   export DEMO_ORG=pipeline-demo-lab DEMO_REPO=cicd-demo RUNNER_COUNT=10
    ./runner-pool/install-runners.sh
    ./runner-pool/start-runners.sh
    ```
@@ -73,7 +73,7 @@ Each of 10 to 15 attendees forks a public demo repo, opens a PR against it, read
    ```
    cp terraform/speaker-demo/terraform.tfvars.example terraform/speaker-demo/terraform.tfvars
    # Edit terraform/speaker-demo/terraform.tfvars before apply:
-   #   aws_account_id = "123456789012"
+   #   aws_account_id = "223744800916"
    #   name_prefix = "rtv-speaker-demo"
    terraform -chdir=terraform/speaker-demo init
    terraform -chdir=terraform/speaker-demo apply

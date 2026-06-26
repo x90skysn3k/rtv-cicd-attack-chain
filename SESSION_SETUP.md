@@ -17,20 +17,20 @@ Use this checklist for rehearsal, conference setup, and teardown. Run every comm
 ```bash
 cp terraform/demo-account/terraform.tfvars.example terraform/demo-account/terraform.tfvars
 # Edit terraform/demo-account/terraform.tfvars before apply:
-#   aws_account_id = "123456789012"
-#   github_org = "throwaway-org"
+#   aws_account_id = "223744800916"
+#   github_org = "pipeline-demo-lab"
 #   github_repo = "cicd-demo"
 terraform -chdir=terraform/demo-account init
 terraform -chdir=terraform/demo-account apply
 
-export DEMO_ORG=throwaway-org
+export DEMO_ORG=pipeline-demo-lab
 export DEMO_REPO=cicd-demo
 export AWS_REGION=us-east-1
 export AWS_ROLE_ARN=$(terraform -chdir=terraform/demo-account output -raw role_arn)
 export SECRET_NAME=$(terraform -chdir=terraform/demo-account output -raw secret_name)
-export EXPECTED_AWS_ACCOUNT_ID=123456789012
-export EXPECTED_GITHUB_USER=throwaway-user
-export PAT_VALUE=classic_pat_value_from_throwaway_user
+export EXPECTED_AWS_ACCOUNT_ID=223744800916
+export EXPECTED_GITHUB_USER=x90skysn3k
+export PAT_VALUE=classic_pat_value_from_x90skysn3k
 ./github/setup-repo.sh
 ```
 
@@ -39,12 +39,12 @@ GitHub UI settings for the demo repo:
 * Actions general settings: run workflows from fork pull requests.
 * Actions general settings: disable approval requirement for outside collaborators.
 * Actions runners: confirm no runner is stale before attendees arrive.
-* Pages: confirm the trophy wall workflow is available at `https://<throwaway-org>.github.io/<demo-repo>/`.
+* Pages: confirm the trophy wall workflow is available at `https://pipeline-demo-lab.github.io/cicd-demo/`.
 
 ## Start runner pool
 
 ```bash
-export DEMO_ORG=throwaway-org
+export DEMO_ORG=pipeline-demo-lab
 export DEMO_REPO=cicd-demo
 export RUNNER_COUNT=10
 ./runner-pool/install-runners.sh
@@ -58,7 +58,7 @@ Confirm at least 10 runners are idle in the GitHub UI.
 ```bash
 cp terraform/speaker-demo/terraform.tfvars.example terraform/speaker-demo/terraform.tfvars
 # Edit terraform/speaker-demo/terraform.tfvars before apply:
-#   aws_account_id = "123456789012"
+#   aws_account_id = "223744800916"
 #   name_prefix = "rtv-speaker-demo"
 terraform -chdir=terraform/speaker-demo init
 terraform -chdir=terraform/speaker-demo apply
@@ -74,7 +74,7 @@ export NAME_PREFIX=$(terraform -chdir=terraform/speaker-demo output -raw name_pr
 ```bash
 cp terraform/detection-rules/terraform.tfvars.example terraform/detection-rules/terraform.tfvars
 # Edit terraform/detection-rules/terraform.tfvars before apply:
-#   aws_account_id = "123456789012"
+#   aws_account_id = "223744800916"
 #   name_prefix = "rtv-cicd-detect"
 terraform -chdir=terraform/detection-rules init
 terraform -chdir=terraform/detection-rules apply
@@ -113,8 +113,8 @@ source /tmp/.rtv-demo-chain-creds
 Rotate the PAT.
 
 ```bash
-export NEW_PAT_VALUE=classic_pat_value_from_throwaway_user
-export EXPECTED_AWS_ACCOUNT_ID=123456789012
+export NEW_PAT_VALUE=classic_pat_value_from_x90skysn3k
+export EXPECTED_AWS_ACCOUNT_ID=223744800916
 ./github/rotate-pat.sh
 ```
 

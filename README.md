@@ -28,24 +28,25 @@ Provision the student facing AWS side.
 ```bash
 cp terraform/demo-account/terraform.tfvars.example terraform/demo-account/terraform.tfvars
 # Edit terraform/demo-account/terraform.tfvars before apply:
-#   aws_account_id = "123456789012"
-#   github_org = "throwaway-org"
+#   aws_account_id = "223744800916"
+#   github_org = "pipeline-demo-lab"
 #   github_repo = "cicd-demo"
 terraform -chdir=terraform/demo-account init
 terraform -chdir=terraform/demo-account apply
 ```
 
 Bootstrap the public demo repository, seed the PAT into Secrets Manager, and enable the GitHub Pages trophy wall.
+The setup script copies `github/workflow.yml` into the demo repo as `.github/workflows/ci.yml`, then copies `github/demo-repo/` as the safe trophy wall app.
 
 ```bash
-export DEMO_ORG=throwaway-org
+export DEMO_ORG=pipeline-demo-lab
 export DEMO_REPO=cicd-demo
 export AWS_REGION=us-east-1
 export AWS_ROLE_ARN=$(terraform -chdir=terraform/demo-account output -raw role_arn)
 export SECRET_NAME=$(terraform -chdir=terraform/demo-account output -raw secret_name)
-export EXPECTED_AWS_ACCOUNT_ID=123456789012
-export EXPECTED_GITHUB_USER=throwaway-user
-export PAT_VALUE=classic_pat_value_from_throwaway_user
+export EXPECTED_AWS_ACCOUNT_ID=223744800916
+export EXPECTED_GITHUB_USER=x90skysn3k
+export PAT_VALUE=classic_pat_value_from_x90skysn3k
 ./github/setup-repo.sh
 ```
 
@@ -54,12 +55,12 @@ Enable the required repository settings in GitHub.
 * Actions general settings: run workflows from fork pull requests
 * Actions general settings: do not require approval for all outside collaborators
 * Actions runners page: confirm all demo runners are idle before attendees begin
-* Pages: confirm the trophy wall workflow is available at `https://<throwaway-org>.github.io/<demo-repo>/`
+* Pages: confirm the trophy wall workflow is available at `https://pipeline-demo-lab.github.io/cicd-demo/`
 
 Install and start the runner pool.
 
 ```bash
-export DEMO_ORG=throwaway-org
+export DEMO_ORG=pipeline-demo-lab
 export DEMO_REPO=cicd-demo
 export RUNNER_COUNT=10
 ./runner-pool/install-runners.sh
@@ -75,7 +76,7 @@ Provision the speaker side.
 ```bash
 cp terraform/speaker-demo/terraform.tfvars.example terraform/speaker-demo/terraform.tfvars
 # Edit terraform/speaker-demo/terraform.tfvars before apply:
-#   aws_account_id = "123456789012"
+#   aws_account_id = "223744800916"
 #   name_prefix = "rtv-speaker-demo"
 terraform -chdir=terraform/speaker-demo init
 terraform -chdir=terraform/speaker-demo apply
@@ -109,7 +110,7 @@ Deploy the detection pack before rehearsal.
 ```bash
 cp terraform/detection-rules/terraform.tfvars.example terraform/detection-rules/terraform.tfvars
 # Edit terraform/detection-rules/terraform.tfvars before apply:
-#   aws_account_id = "123456789012"
+#   aws_account_id = "223744800916"
 #   name_prefix = "rtv-cicd-detect"
 terraform -chdir=terraform/detection-rules init
 terraform -chdir=terraform/detection-rules apply
@@ -131,8 +132,8 @@ After each run:
 Then rotate the PAT.
 
 ```bash
-export NEW_PAT_VALUE=classic_pat_value_from_throwaway_user
-export EXPECTED_AWS_ACCOUNT_ID=123456789012
+export NEW_PAT_VALUE=classic_pat_value_from_x90skysn3k
+export EXPECTED_AWS_ACCOUNT_ID=223744800916
 ./github/rotate-pat.sh
 ```
 
