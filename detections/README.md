@@ -24,7 +24,7 @@ Deploy the Terraform rule pack in the same AWS account as the demo before rehear
 cd terraform/detection-rules
 cp terraform.tfvars.example terraform.tfvars
 # Edit terraform.tfvars before apply:
-#   aws_account_id = "123456789012"
+#   aws_account_id = "223744800916"
 terraform init
 terraform apply
 ```
