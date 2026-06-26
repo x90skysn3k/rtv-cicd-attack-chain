@@ -4,7 +4,7 @@ Hands on cloud native CI/CD red team lab for DEF CON 34 Red Team Village.
 
 This repository contains the public reproduction bundle for the workshop and paired tactic. It deploys a deliberately vulnerable GitHub Actions and AWS lab that demonstrates pull request poisoning, GitHub OIDC to AWS STS credential theft, Secrets Manager pivoting, Lambda and EventBridge persistence, IAM role chaining, and CloudTrail based detections.
 
-Live training landing page: `https://x90sky.sh/rtv`. The same static page lives in `docs/index.html` for GitHub Pages or any external redirect. Print or project `docs/rtv-qr.png` for quick attendee access.
+Live training landing page and source of truth: `https://x90sky.sh/rtv`. `docs/index.html` redirects there so old GitHub Pages links do not become stale. Print or project `docs/rtv-qr.png` for quick attendee access.
 
 ## Safety model
 
