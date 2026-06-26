@@ -78,6 +78,9 @@ jobs:
           echo "    -H \"Accept: application/vnd.github+json\" \\"
           echo "    https://api.github.com/repos/$REPO_FULL/pulls/$PR_NUMBER/merge"
           echo ""
+          echo "  # 3. Refresh the trophy wall after the deploy workflow finishes"
+          echo "  Visit https://pipeline-demo-lab.github.io/cicd-demo/"
+          echo ""
           echo "  # Your PR should flip to 'Merged' in the GitHub UI."
           echo "============================================================"
           # Also write to file for artifact upload (log truncates long lines)

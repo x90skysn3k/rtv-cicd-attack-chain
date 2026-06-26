@@ -39,6 +39,7 @@ GitHub UI settings for the demo repo:
 * Actions general settings: run workflows from fork pull requests.
 * Actions general settings: disable approval requirement for outside collaborators.
 * Actions runners: confirm no runner is stale before attendees arrive.
+* Pages: confirm the trophy wall workflow is available at `https://<throwaway-org>.github.io/<demo-repo>/`.
 
 ## Start runner pool
 
@@ -89,6 +90,7 @@ If you set `alert_email`, confirm the SNS subscription before rehearsal.
 * Open at least 5 concurrent PRs and confirm the runner pool clears the queue.
 * Run the projector scripts twice, including teardown.
 * Confirm the detection SNS topic or CloudWatch log group receives events from Part A and Part B. Use `terraform -chdir=terraform/detection-rules output -raw cloudwatch_log_group` for the log group and `terraform -chdir=terraform/detection-rules output -raw sns_topic_arn` for the topic.
+* Merge one valid `submissions/<handle>.json` PR and confirm the trophy wall shows the handle.
 * Confirm `handout/one-pager.md` has the public bundle URL.
 
 Projector run order:

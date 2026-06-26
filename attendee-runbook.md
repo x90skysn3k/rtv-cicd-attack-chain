@@ -2,9 +2,10 @@
 
 **Time budget: 15 minutes to complete the hands-on.**
 
-By the end of this runbook you will have force-merged your own pull request against a repo you do not own, using AWS credentials that did not exist until you opened the PR.
+By the end of this runbook you will have force-merged your own pull request against a repo you do not own, using AWS credentials that did not exist until you opened the PR. Your handle will land on the live trophy wall after the protected deploy workflow runs.
 
 Live landing page during training: `https://x90sky.sh/rtv`
+Trophy wall: `https://pipeline-demo-lab.github.io/cicd-demo/`
 
 ## What you need before you start
 
@@ -22,10 +23,19 @@ You do NOT need an AWS account of your own. You'll use temporary credentials min
 
 ## Step 2: Open a PR from your fork
 
-1. On your fork, click **Edit** on the README (pencil icon).
-2. Change one character. Literally anything.
-3. Scroll down, select **"Create a new branch for this commit and start a pull request"**, and click **Propose changes**.
-4. Click **Create pull request** on the next screen.
+1. On your fork, choose **Add file**, then **Create new file**.
+2. Name the file `submissions/<handle>.json`, replacing `<handle>` with your GitHub handle or conference alias.
+3. Paste this JSON and change the values:
+
+```json
+{
+  "handle": "alice",
+  "message": "pipeline owned"
+}
+```
+
+4. Scroll down, select **"Create a new branch for this commit and start a pull request"**, and click **Propose changes**.
+5. Click **Create pull request** on the next screen.
 
 Your PR will appear on the original demo repo (not your fork).
 
@@ -79,7 +89,7 @@ curl -X PUT \
   "https://api.github.com/repos/<DEMO_ORG>/<DEMO_REPO>/pulls/<PR_NUMBER>/merge"
 ```
 
-Refresh your PR page in the browser. It should flip from **Open** to **Merged**. No one reviewed it. No human clicked approve. You merged it with a credential that did not exist when you opened the PR.
+Refresh your PR page in the browser. It should flip from **Open** to **Merged**. No one reviewed it. No human clicked approve. You merged it with a credential that did not exist when you opened the PR. After the deploy workflow finishes, refresh the trophy wall and find your handle.
 
 ## What just happened
 
@@ -88,6 +98,7 @@ Refresh your PR page in the browser. It should flip from **Open** to **Merged**.
 3. The workflow minted an STS session and printed it to the build log. The build log is public.
 4. The IAM role had only one permission: read one Secrets Manager secret. You used it to pull the PAT.
 5. The PAT had `repo` scope on the demo org. You used it to force-merge your own PR.
+6. A protected deploy workflow validated your JSON and published the trophy wall.
 
 The attack did not require a C2. It did not require an implant. It did not require your laptop to be reachable from anywhere. The build log was the exfil channel, the IAM role was the pivot, and the PAT was the escalation.
 

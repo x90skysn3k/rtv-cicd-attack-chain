@@ -35,7 +35,7 @@ terraform -chdir=terraform/demo-account init
 terraform -chdir=terraform/demo-account apply
 ```
 
-Bootstrap the public demo repository and seed the PAT into Secrets Manager.
+Bootstrap the public demo repository, seed the PAT into Secrets Manager, and enable the GitHub Pages trophy wall.
 
 ```bash
 export DEMO_ORG=throwaway-org
@@ -54,6 +54,7 @@ Enable the required repository settings in GitHub.
 * Actions general settings: run workflows from fork pull requests
 * Actions general settings: do not require approval for all outside collaborators
 * Actions runners page: confirm all demo runners are idle before attendees begin
+* Pages: confirm the trophy wall workflow is available at `https://<throwaway-org>.github.io/<demo-repo>/`
 
 Install and start the runner pool.
 

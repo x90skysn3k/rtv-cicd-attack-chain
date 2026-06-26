@@ -1,0 +1,58 @@
+name: Trophy Wall
+
+on:
+  pull_request:
+    paths:
+      - submissions/**
+      - scripts/**
+      - .github/workflows/trophy-wall.yml
+  push:
+    branches: [main]
+    paths:
+      - submissions/**
+      - scripts/**
+      - .github/workflows/trophy-wall.yml
+  workflow_dispatch:
+
+concurrency:
+  group: trophy-wall
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Validate submissions
+        run: python3 scripts/validate_submissions.py
+      - name: Test validator
+        run: python3 -m unittest discover -s tests -t .
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Render wall
+        run: python3 scripts/render_wall.py
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+      - name: Deploy Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
