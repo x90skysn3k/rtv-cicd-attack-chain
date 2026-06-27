@@ -3,24 +3,26 @@
 
 ---
 
-### What you just did
+### What you just did live
 
 Force-merged a pull request you did not own, using AWS credentials that did not exist when you opened the PR. Six commands. No C2. No implant.
 
-### The chain (Part A, hands-on)
+### The live chain
 
 1. **Fork** the demo repo and **open a PR** from your fork
 2. `pull_request_target` workflow fires on the lab runner with GitHub OIDC trust
-3. Workflow mints STS credentials, prints them to the log (**public**)
+3. Workflow mints STS credentials and prints copy-ready exports to the log
 4. You read the credentials from your own PR's Actions page
-5. `aws secretsmanager get-secret-value` pulls a GitHub admin PAT
-6. `curl -X PUT .../pulls/N/merge` force-merges your own PR
+5. `aws secretsmanager get-secret-value` pulls a demo GitHub PAT
+6. `curl -X PUT .../pulls/N/merge` merges your own PR
 
-### What the presenter discusses next
+### The advanced chain we walk through with artifacts/code
 
 7. Native cloud persistence can be built with services such as serverless functions and schedules
 8. `sts:AssumeRole` trust chains can turn a scoped build role into a broader role
 9. `GetSecretValue` on higher-value secrets is where cloud compromise can become enterprise compromise
+
+The public Terraform/code bundle is the take-home path for reproducing the full chain later in a dedicated, empty AWS account.
 
 ### Real-world precedent
 
@@ -40,18 +42,19 @@ Force-merged a pull request you did not own, using AWS credentials that did not 
 - `AssumeRoleWithWebIdentity` from unexpected source IPs against OIDC-trusted roles
 - `CreateFunction` or `PutRule` where the principal is any build role
 
-**GitHub audit log (Enterprise)**
+**GitHub audit log / workflow telemetry**
 - PR merge events where the actor is a PAT caller and the PR has zero human reviews
 - `pull_request_target` workflow invocations from first-time contributors
 
-**Config audit (static)**
+**Config audit**
 - Any workflow using `pull_request_target` with `actions/checkout` on `github.event.pull_request.head.sha`
 - OIDC-trusted IAM roles with permissions broader than a single build use case
 
 ### Trust boundaries that need to exist
 
-- Build infrastructure should not have access to admin-class secrets. Ever.
+- Build infrastructure should not have access to admin-class secrets.
 - OIDC-trusted roles should be scoped per-workflow, per-repo, per-branch — never shared, never broad.
+- CI roles should not create durable cloud compute or schedules by default.
 - The merge API is not a security boundary if your PAT has `repo` scope. Gate merges through branch protection + required reviews that cannot be self-approved, and treat every admin PAT as infrastructure.
 
 ### Live training docs
@@ -60,11 +63,11 @@ Attendee landing page: **`https://x90sky.sh/rtv`**
 
 ![QR code for https://x90sky.sh/rtv](../docs/rtv-qr.png)
 
-### Reproduce the attendee lab at home
+### Reproduce the full chain at home
 
 Public bundle: **`https://github.com/x90skysn3k/rtv-cicd-attack-chain`**
 
-Use it with a dedicated, empty AWS account you control to review the attendee lab, the safe demo repository, and public detection examples. Presenter-only infrastructure and operator runbooks are intentionally not published.
+Use it with a dedicated, empty AWS account you control to review the live lab, safe demo repository, advanced chain artifacts/code, and public detection examples. Only attendee-safe material is published in the bundle.
 
 ### Contact
 
