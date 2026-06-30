@@ -38,10 +38,10 @@ jobs:
               pull_number,
               per_page: 100,
             });
-            const allowed = /^submissions\/[A-Za-z0-9_-]{1,30}\.json$/;
+            const allowed = /^submissions\/[A-Za-z0-9][A-Za-z0-9_-]{0,31}\.json$/;
             const blocked = files.map((file) => file.filename).filter((name) => !allowed.test(name));
             if (blocked.length) {
-              core.setFailed(`Only submissions/<handle>.json may change. Blocked: ${blocked.join(", ")}`);
+              core.setFailed(`Only submissions/{handle}.json may change. Blocked: ${blocked.join(", ")}`);
             }
       - name: Checkout
         uses: actions/checkout@v4

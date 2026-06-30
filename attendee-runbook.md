@@ -52,18 +52,18 @@ Open the public demo repo URL shown on the room slide and click **Fork**.
 
 ### 2. Add your submission
 
-In your fork, create:
+In your fork, create a file named after your assigned handle. Example for `student07`:
 
 ```text
-submissions/<your-handle>.json
+submissions/student07.json
 ```
 
-Example:
+Example payload:
 
 ```json
 {
   "handle": "student07",
-  "timestamp": "2026-08-08T00:00:00Z"
+  "message": "Pipeline proof captured"
 }
 ```
 
@@ -115,12 +115,12 @@ The AWS role is narrow. The secret is not.
 
 ### 6. Merge your own PR
 
-Set these from the room slide / your PR URL:
+Set these from the room slide / your PR URL. Replace `8` with your PR number:
 
 ```bash
 export DEMO_ORG="pipeline-demo-lab"
 export DEMO_REPO="cicd-demo"
-export PR_NUMBER="<your-pr-number>"
+export PR_NUMBER="8"  # from your PR URL
 ```
 
 Merge:

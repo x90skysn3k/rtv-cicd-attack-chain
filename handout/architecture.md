@@ -12,8 +12,8 @@ flowchart TD
     F -->|STS credentials| G["Workflow log<br/>(PUBLIC)"]
     G -->|copy/paste| H[Attendee terminal]
     H -->|GetSecretValue| I["Secrets Manager<br/>demo/github-pat"]
-    I -->|GitHub admin PAT| H
-    H -->|"curl PUT /pulls/N/merge<br/>Authorization: token PAT"| J[GitHub API]
+    I -->|sets RTV_PAT| H
+    H -->|"curl PUT /pulls/N/merge<br/>Authorization: token ${RTV_PAT}"| J[GitHub API]
     J -->|force-merge| C
     C -->|"status: Merged"| K["PR flipped<br/>no human reviewed"]
 

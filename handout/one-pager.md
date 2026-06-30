@@ -13,8 +13,8 @@ Force-merged a pull request you did not own, using AWS credentials that did not 
 2. `pull_request_target` workflow fires on the lab runner with GitHub OIDC trust
 3. Workflow mints STS credentials and prints copy-ready exports to the log
 4. You read the credentials from your own PR's Actions page
-5. `aws secretsmanager get-secret-value` pulls a demo GitHub PAT
-6. `curl -X PUT .../pulls/N/merge` merges your own PR
+5. `export RTV_PAT="$(aws secretsmanager get-secret-value ...)"` stores the demo GitHub PAT
+6. `curl -sS -X PUT ... Authorization: token ${RTV_PAT}` merges your own PR
 
 ### The advanced chain we walk through with artifacts/code
 

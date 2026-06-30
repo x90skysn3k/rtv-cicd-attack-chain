@@ -8,8 +8,8 @@ Deliberately vulnerable demo repository for the DEF CON 34 Red Team Village lab.
 2. Add one JSON file under `submissions/`.
 3. Open a pull request from your fork.
 4. Copy the STS credentials from the workflow log.
-5. Pull the GitHub PAT from Secrets Manager.
-6. Merge your own pull request with the PAT.
+5. Set `RTV_PAT` from Secrets Manager.
+6. Merge your own pull request with `RTV_PAT`.
 7. Refresh the trophy wall after GitHub Pages deploys.
 
 ## Submission format
