@@ -5,22 +5,34 @@
 
 ### What you just did live
 
-Force-merged a pull request you did not own, using AWS credentials that did not exist when you opened the PR. Six commands. No C2. No implant.
+Force-merged a pull request you did not own, using AWS credentials that did not exist when you opened the PR. Eight clear steps. No C2. No implant.
 
-### The live chain
+### The live command path
 
-1. **Fork** the demo repo and **open a PR** from your fork
-2. `pull_request_target` workflow fires on the lab runner with GitHub OIDC trust
-3. Workflow mints STS credentials and prints copy-ready exports to the log
-4. You read the credentials from your own PR's Actions page
-5. `export RTV_PAT="$(aws secretsmanager get-secret-value ...)"` stores the demo GitHub PAT
-6. `curl -sS -X PUT ... Authorization: token ${RTV_PAT}` merges your own PR
+1. **Set your handle**
+   - `export RTV_HANDLE="replace_with_your_assigned_handle"`
+2. **Fork + submit**
+   - create `submissions/${RTV_HANDLE}.json` with only `handle` and `message`
+3. **Open PR**
+   - target the room demo repo, not your fork
+4. **Copy STS exports**
+   - paste the workflow log's `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN`, and `AWS_REGION`
+5. **Verify AWS identity**
+   - `aws sts get-caller-identity`
+6. **Read demo PAT**
+   - `aws secretsmanager get-secret-value --secret-id demo/github-pat --query SecretString --output text`
+7. **Merge your PR**
+   - `curl -X PUT .../pulls/${PR_NUMBER}/merge` with `RTV_PAT`
+8. **Refresh trophy wall**
+   - wait for GitHub Pages if the wall lags
 
 ### The advanced chain we walk through with artifacts/code
 
-7. Native cloud persistence can be built with services such as serverless functions and schedules
-8. `sts:AssumeRole` trust chains can turn a scoped build role into a broader role
-9. `GetSecretValue` on higher-value secrets is where cloud compromise can become enterprise compromise
+Beyond the live path:
+
+- Native cloud persistence can be built with services such as serverless functions and schedules.
+- `sts:AssumeRole` trust chains can turn a scoped build role into a broader role.
+- `GetSecretValue` on higher-value secrets is where cloud compromise can become enterprise compromise.
 
 The public Terraform/code bundle is the take-home path for reproducing the full chain later in a dedicated, empty AWS account.
 

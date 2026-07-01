@@ -7,13 +7,13 @@ flowchart TD
     A["Attendee<br/>(GitHub account)"] -->|fork| B[Demo repo]
     A -->|open PR from fork| C[Pull request<br/>(status: Open)]
     C -->|pull_request_target fires| D[Self-hosted lab runner]
-    D -->|getIDToken| E["GitHub OIDC token<br/>aud=sts.amazonaws.com<br/>sub=repo:ORG/REPO:pull_request"]
+    D -->|getIDToken| E["GitHub OIDC token<br/>aud=sts.amazonaws.com<br/>sub=repo:${DEMO_ORG}/${DEMO_REPO}:pull_request"]
     E -->|assume-role-with-web-identity| F["AWS IAM role<br/>rtv-demo-oidc-role<br/>(GetSecretValue only)"]
     F -->|STS credentials| G["Workflow log<br/>(PUBLIC)"]
     G -->|copy/paste| H[Attendee terminal]
     H -->|GetSecretValue| I["Secrets Manager<br/>demo/github-pat"]
-    I -->|sets RTV_PAT| H
-    H -->|"curl PUT /pulls/N/merge<br/>Authorization: token ${RTV_PAT}"| J[GitHub API]
+    I -->|GitHub admin PAT| H
+    H -->|"curl PUT /pulls/${PR_NUMBER}/merge<br/>Authorization: token ${RTV_PAT}"| J[GitHub API]
     J -->|force-merge| C
     C -->|"status: Merged"| K["PR flipped<br/>no human reviewed"]
 

