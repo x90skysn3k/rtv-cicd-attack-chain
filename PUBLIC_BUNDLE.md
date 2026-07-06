@@ -7,7 +7,7 @@ The public repository `x90skysn3k/rtv-cicd-attack-chain` is the attendee-safe ex
 The conference-room flow is submission-compatible:
 
 ```text
-Live hands-on: PR/OIDC/STS → demo PAT merge → trophy wall
+Live hands-on: PR-controlled step → OIDC/STS → demo PAT merge → trophy wall
 Advanced chain: persistence → IAM graph → pivot secrets → detections via slides/logs/code
 Take-home: Terraform/code bundle to reproduce the full chain later
 ```

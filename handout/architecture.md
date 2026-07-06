@@ -5,26 +5,28 @@
 ```mermaid
 flowchart TD
     A["Attendee<br/>(GitHub account)"] -->|fork| B[Demo repo]
-    A -->|open PR from fork| C[Pull request<br/>(status: Open)]
+    A -->|open PR from fork| C["Pull request<br/>(submission JSON +<br/>handle-scoped script)"]
     C -->|pull_request_target fires| D[Self-hosted lab runner]
-    D -->|getIDToken| E["GitHub OIDC token<br/>aud=sts.amazonaws.com<br/>sub=repo:${DEMO_ORG}/${DEMO_REPO}:pull_request"]
-    E -->|assume-role-with-web-identity| F["AWS IAM role<br/>rtv-demo-oidc-role<br/>(GetSecretValue only)"]
-    F -->|STS credentials| G["Workflow log<br/>(PUBLIC)"]
-    G -->|copy/paste| H[Attendee terminal]
-    H -->|GetSecretValue| I["Secrets Manager<br/>demo/github-pat"]
-    I -->|GitHub admin PAT| H
-    H -->|"curl PUT /pulls/${PR_NUMBER}/merge<br/>Authorization: token ${RTV_PAT}"| J[GitHub API]
-    J -->|force-merge| C
-    C -->|"status: Merged"| K["PR flipped<br/>no human reviewed"]
+    D -->|checkout PR code| E["PR-controlled script<br/>ci/student-steps/YOUR_HANDLE.sh"]
+    D -->|getIDToken| F["GitHub OIDC token<br/>aud=sts.amazonaws.com<br/>sub=repo:${DEMO_ORG}/${DEMO_REPO}:pull_request"]
+    F -->|assume-role-with-web-identity| G["AWS IAM role<br/>rtv-demo-oidc-role<br/>(GetSecretValue only)"]
+    G -->|temporary STS env vars| E
+    E -->|print exports + upload artifact| H["Workflow log / sts-credentials artifact"]
+    H -->|copy/paste| I[Attendee terminal]
+    I -->|GetSecretValue| J["Secrets Manager<br/>demo/github-pat"]
+    J -->|GitHub admin PAT| I
+    I -->|"curl PUT /pulls/${PR_NUMBER}/merge<br/>Authorization: token ${PAT}"| K[GitHub API]
+    K -->|force-merge| C
+    C -->|"status: Merged"| L["PR flipped<br/>no human reviewed"]
 
-    style F fill:#ffe6e6
-    style I fill:#ffcccc
-    style K fill:#ff9999
+    style G fill:#ffe6e6
+    style J fill:#ffcccc
+    style L fill:#ff9999
 ```
 
 Key points:
-- The STS credentials never leave the public workflow log and the attendee's
-  laptop. No C2, no exfil endpoint.
+- The trusted target workflow constructs `ci/student-steps/YOUR_HANDLE.sh`
+  from the submission handle and executes that PR-controlled script.
 - The IAM role has exactly one permission. Zero blast radius outside the
   single PAT pull.
 - The force-merge call uses a credential that did not exist when the PR was

@@ -1,62 +1,31 @@
-# RTV CI/CD demo
+# Totally Not Vulnerable Repo
 
-Deliberately vulnerable demo repository for the DEF CON 34 Red Team Village lab.
+Welcome to `cicd-demo`, a very serious repository for very serious software-shaped activities.
 
-## Training flow
+Nothing suspicious happens here. The robots are calm. The pipelines are hydrated. The cloud is probably fine.
 
-1. Fork this repository.
-2. Add one JSON file under `submissions/`.
-3. Open a pull request from your fork.
-4. Copy the STS credentials from the workflow log.
-5. Pull the GitHub PAT from Secrets Manager.
-6. Merge your own pull request with the PAT.
-7. Refresh the trophy wall after GitHub Pages deploys.
+## What this repo does
 
-## Live room quick path
+- Collects tiny trophy-wall JSON notes from friends of the lab.
+- Lets a responsible robot inspect those notes.
+- Publishes a little static wall when the robot is satisfied.
+- Maintains a spotless record of definitely-normal CI/CD decisions.
 
-Use the full `attendee-runbook.md` from the public bundle for screenshots, expected results, and fallback notes. The short command sequence is:
+## Current security posture
 
-```bash
-export RTV_HANDLE="replace_with_your_assigned_handle"
-mkdir -p submissions
-cat > "submissions/${RTV_HANDLE}.json" <<EOF
-{
-  "handle": "${RTV_HANDLE}",
-  "message": "I controlled the pipeline."
-}
-EOF
+```text
+vulnerability_status="none detected by the vibes team"
+pipeline_mood="trustworthy enough"
+blast_radius="decorative"
 ```
 
-Then:
+## Repo etiquette
 
-1. Open a PR from your fork back to the room demo repo.
-2. Copy the workflow log's AWS export lines into your terminal.
-3. Verify with `aws sts get-caller-identity`.
-4. Set `RTV_PAT` from `aws secretsmanager get-secret-value`.
-5. Set `DEMO_ORG`, `DEMO_REPO`, and `PR_NUMBER`.
-6. Merge with `curl -X PUT .../pulls/${PR_NUMBER}/merge`.
-7. Refresh the trophy wall.
-
-## Submission format
-
-Create `submissions/${RTV_HANDLE}.json` with this shape:
-
-Replace `${RTV_HANDLE}` with your assigned handle, for example `alice`.
-
-```json
-{
-  "handle": "alice",
-  "message": "pipeline owned"
-}
-```
-
-Rules:
-
-* The filename must match `handle`.
-* `handle` may use letters, numbers, underscores, and hyphens.
-* `message` must be 96 characters or fewer.
-* HTML and extra fields are rejected.
+- Be kind to the trophy wall.
+- Do not feed the pipeline after midnight.
+- If a workflow starts glowing, that is expected conference ambience.
+- If anything looks overpowered, remember: this repo is totally not vulnerable.
 
 ## Safety note
 
-This repository is intentionally unsafe. Do not copy the workflow into a real repository.
+This repository is intentionally silly and intentionally isolated. Do not copy its workflow patterns into a real repository unless your security model is also powered by stickers, stage lighting, and wishful thinking.

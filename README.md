@@ -7,7 +7,7 @@ Attendee-safe materials for **Trust the Pipeline, Lose the Kingdom**.
 The live Red Team Village room flow is:
 
 ```text
-PR/OIDC/STS → demo PAT merge → trophy wall
+PR-controlled step → OIDC/STS → demo PAT merge → trophy wall
 ```
 
 The advanced cloud-native chain is taught with logs, diagrams, and code artifacts during the hour:
@@ -22,16 +22,17 @@ The public Terraform/code bundle is the take-home path for reproducing the full 
 
 Use `attendee-runbook.md` as the copy/paste path. Run the live room steps in this order:
 
-1. Set your assigned handle.
-2. Fork the demo repo.
-3. Create `submissions/${RTV_HANDLE}.json`.
-4. Open a pull request back to the room demo repo.
-5. Copy the workflow's redacted AWS export lines into your terminal.
-6. Verify the temporary AWS identity.
-7. Read the demo GitHub token from Secrets Manager into `RTV_PAT`.
-8. Set `DEMO_ORG`, `DEMO_REPO`, and `PR_NUMBER`.
-9. Merge your own PR with the GitHub API.
-10. Refresh the trophy wall.
+1. Fork the demo repo.
+2. Review `.github/workflows/ci.yml`.
+3. Create `submissions/YOUR_HANDLE.json` in GitHub web.
+4. Create `ci/student-steps/YOUR_HANDLE.sh` in GitHub web.
+5. Open a pull request back to the room demo repo.
+6. Copy the AWS export lines printed by your PR-controlled step.
+7. Verify the temporary AWS identity.
+8. Read the demo GitHub token from Secrets Manager into `PAT`.
+9. Set `DEMO_ORG`, `DEMO_REPO`, and `PR_NUMBER`.
+10. Merge your own PR with the GitHub API.
+11. Refresh the trophy wall.
 
 Do **not** run Terraform during the live room session. Terraform is only for the take-home reproduction path in an empty AWS account you control.
 

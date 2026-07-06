@@ -5,25 +5,29 @@
 
 ### What you just did live
 
-Force-merged a pull request you did not own, using AWS credentials that did not exist when you opened the PR. Eight clear steps. No C2. No implant.
+Force-merged a pull request you did not own, using AWS credentials your own PR-controlled pipeline step printed from a trusted workflow. No C2. No implant.
 
 ### The live command path
 
-1. **Set your handle**
-   - `export RTV_HANDLE="replace_with_your_assigned_handle"`
-2. **Fork + submit**
-   - create `submissions/${RTV_HANDLE}.json` with only `handle` and `message`
-3. **Open PR**
+1. **Fork**
+   - fork the Totally Not Vulnerable Repo
+2. **Review the pipeline configs**
+   - find `pull_request_target`, PR checkout, and `bash "$STUDENT_STEP"`
+3. **Add submission JSON**
+   - create `submissions/YOUR_HANDLE.json` with `{"handle":"YOUR_HANDLE","message":"your message"}`
+4. **Add pipeline step**
+   - create matching `ci/student-steps/YOUR_HANDLE.sh`
+5. **Open PR**
    - target the room demo repo, not your fork
-4. **Copy STS exports**
-   - paste the workflow log's `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN`, and `AWS_REGION`
-5. **Verify AWS identity**
+6. **Copy STS exports**
+   - paste the exports printed by your pipeline step, or use the `sts-credentials` artifact
+7. **Verify AWS identity**
    - `aws sts get-caller-identity`
-6. **Read demo PAT**
+8. **Read demo PAT**
    - `aws secretsmanager get-secret-value --secret-id demo/github-pat --query SecretString --output text`
-7. **Merge your PR**
-   - `curl -X PUT .../pulls/${PR_NUMBER}/merge` with `RTV_PAT`
-8. **Refresh trophy wall**
+9. **Merge your PR**
+   - `curl -X PUT .../pulls/${PR_NUMBER}/merge` with `PAT`
+10. **Refresh trophy wall**
    - wait for GitHub Pages if the wall lags
 
 ### The advanced chain we walk through with artifacts/code

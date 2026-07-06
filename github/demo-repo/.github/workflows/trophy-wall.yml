@@ -5,12 +5,14 @@ on:
     branches: [main]
     paths:
       - submissions/**
+      - ci/student-steps/**
       - scripts/**
       - .github/workflows/**
   push:
     branches: [main]
     paths:
       - submissions/**
+      - ci/student-steps/**
   workflow_dispatch:
 
 concurrency:
@@ -25,7 +27,7 @@ jobs:
       contents: read
       pull-requests: read
     steps:
-      - name: Enforce submission-only changes
+      - name: Enforce handle-scoped lab changes
         if: github.event_name == 'pull_request_target'
         uses: actions/github-script@v7
         with:
@@ -38,10 +40,24 @@ jobs:
               pull_number,
               per_page: 100,
             });
-            const allowed = /^submissions\/[A-Za-z0-9_-]{1,30}\.json$/;
-            const blocked = files.map((file) => file.filename).filter((name) => !allowed.test(name));
-            if (blocked.length) {
-              core.setFailed(`Only one submissions/handle-name.json file may change. Blocked: ${blocked.join(", ")}`);
+            const names = files.map((file) => file.filename);
+            const submissionPattern = /^submissions\/([A-Za-z0-9_-]{1,32})\.json$/;
+            const stepPattern = /^ci\/student-steps\/([A-Za-z0-9_-]{1,32})\.sh$/;
+            const submissionMatches = names
+              .map((name) => name.match(submissionPattern))
+              .filter(Boolean);
+            const stepMatches = names
+              .map((name) => name.match(stepPattern))
+              .filter(Boolean);
+            const blocked = names.filter((name) => !submissionPattern.test(name) && !stepPattern.test(name));
+            if (blocked.length || submissionMatches.length !== 1 || stepMatches.length !== 1) {
+              core.setFailed(`Only submissions/<handle>.json and ci/student-steps/<handle>.sh may change. Blocked: ${blocked.join(", ") || "none"}`);
+              return;
+            }
+            const submissionHandle = submissionMatches[0][1];
+            const stepHandle = stepMatches[0][1];
+            if (submissionHandle !== stepHandle) {
+              core.setFailed(`Submission handle ${submissionHandle} must match student step handle ${stepHandle}`);
             }
       - name: Checkout
         uses: actions/checkout@v4
