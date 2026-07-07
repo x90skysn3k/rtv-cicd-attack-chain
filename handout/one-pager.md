@@ -77,13 +77,13 @@ The public Terraform/code bundle is the take-home path for reproducing the full 
 
 ### Live training docs
 
-Attendee landing page: **`https://x90sky.sh/rtv`**
+Attendee landing page: **[https://x90sky.sh/rtv](https://x90sky.sh/rtv)**
 
 ![QR code for https://x90sky.sh/rtv](../docs/rtv-qr.png)
 
 ### Reproduce the full chain at home
 
-Public bundle: **`https://github.com/x90skysn3k/rtv-cicd-attack-chain`**
+Public bundle: **[https://github.com/x90skysn3k/rtv-cicd-attack-chain](https://github.com/x90skysn3k/rtv-cicd-attack-chain)**
 
 Use it with a dedicated, empty AWS account you control to review the live lab, safe demo repository, advanced chain artifacts/code, and public detection examples. Only attendee-safe material is published in the bundle.
 

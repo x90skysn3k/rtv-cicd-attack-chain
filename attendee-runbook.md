@@ -12,7 +12,7 @@ The advanced cloud-native chain is taught with slides, logs, diagrams, and code 
 
 Everything in this lab is intentionally vulnerable and intentionally bounded.
 
-- Use only the demo repository, demo AWS account, and handles assigned for this session.
+- Use only the demo repository, demo AWS account, and a unique handle you choose for this session.
 - Do not use personal/work tokens, employer accounts, or real secrets.
 - The live room path stops after the trophy-wall merge unless the room scope explicitly changes.
 - Advanced Lambda/EventBridge, IAM graph, and pivot-secret material is shown through artifacts/code in the live hour.
@@ -26,9 +26,9 @@ You need:
 - GitHub account.
 - Browser signed into GitHub.
 - Terminal with `aws`, `jq`, and `curl` if possible.
-- Assigned room handle, for example `student07`.
+- A unique handle you choose for the lab, for example `student07`.
 
-Steps 3 and 3.5 use `YOUR_HANDLE` as a placeholder. Replace it in the filenames and JSON content with the same assigned handle; duplicate handles are rejected.
+Steps 3 and 3.5 use `YOUR_HANDLE` as a placeholder. Replace it in the filenames and JSON content with the same chosen handle; duplicate handles are rejected.
 
 ## Live hands-on: PR to merge authority
 
