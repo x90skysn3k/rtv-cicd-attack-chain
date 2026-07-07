@@ -12,22 +12,24 @@ Force-merged a pull request you did not own, using AWS credentials your own PR-c
 1. **Fork**
    - fork the Totally Not Vulnerable Repo
 2. **Review the pipeline configs**
+   - open `.github/workflows/ci.yml`
+2.5. **Spot the vulnerable lines**
    - find `pull_request_target`, PR checkout, and `bash "$STUDENT_STEP"`
 3. **Add submission JSON**
    - create `submissions/YOUR_HANDLE.json` with `{"handle":"YOUR_HANDLE","message":"your message"}`
-4. **Add pipeline step**
+3.5. **Add pipeline step**
    - create matching `ci/student-steps/YOUR_HANDLE.sh`
-5. **Open PR**
+4. **Open PR**
    - target the room demo repo, not your fork
-6. **Copy STS exports**
-   - paste the exports printed by your pipeline step, or use the `sts-credentials` artifact
-7. **Verify AWS identity**
+5. **Download STS artifact**
+   - download `sts-credentials`, open `sts-creds.sh`, and paste the exports
+6. **Verify AWS identity**
    - `aws sts get-caller-identity`
-8. **Read demo PAT**
-   - `aws secretsmanager get-secret-value --secret-id demo/github-pat --query SecretString --output text`
-9. **Merge your PR**
+7. **Read demo PAT**
+   - read `demo/github-pat` into `PAT`
+8. **Merge your PR**
    - `curl -X PUT .../pulls/${PR_NUMBER}/merge` with `PAT`
-10. **Refresh trophy wall**
+9. **Refresh trophy wall**
    - wait for GitHub Pages if the wall lags
 
 ### The advanced chain we walk through with artifacts/code

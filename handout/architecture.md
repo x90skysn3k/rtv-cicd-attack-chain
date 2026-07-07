@@ -11,8 +11,8 @@ flowchart TD
     D -->|getIDToken| F["GitHub OIDC token<br/>aud=sts.amazonaws.com<br/>sub=repo:${DEMO_ORG}/${DEMO_REPO}:pull_request"]
     F -->|assume-role-with-web-identity| G["AWS IAM role<br/>rtv-demo-oidc-role<br/>(GetSecretValue only)"]
     G -->|temporary STS env vars| E
-    E -->|print exports + upload artifact| H["Workflow log / sts-credentials artifact"]
-    H -->|copy/paste| I[Attendee terminal]
+    E -->|write exports| H["sts-credentials artifact<br/>sts-creds.sh"]
+    H -->|download + paste| I[Attendee terminal]
     I -->|GetSecretValue| J["Secrets Manager<br/>demo/github-pat"]
     J -->|GitHub admin PAT| I
     I -->|"curl PUT /pulls/${PR_NUMBER}/merge<br/>Authorization: token ${PAT}"| K[GitHub API]
