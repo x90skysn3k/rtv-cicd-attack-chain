@@ -403,7 +403,7 @@ AWS is not the destination. The secret store is the bridge to everything around 
 
 ## Take-home Terraform/code
 
-Do this **after the session**, not during the live room lab. Use a dedicated, empty AWS account you control.
+Do this **after the session**, never during the live room lab. Use a dedicated, empty AWS account you control and a throwaway GitHub repository. The conference workflow and its GetSecretValue-only attendee role do not deploy persistence or grant the advanced-chain permissions.
 
 Public bundle:
 
@@ -411,87 +411,94 @@ Public bundle:
 https://github.com/x90skysn3k/rtv-cicd-attack-chain
 ```
 
-### Take-home Step 1 — Clone the bundle
-
-Goal: get the attendee-safe reproduction files.
-
-Run:
+### Take-home Step 1 — Clone and inspect the bounded resources
 
 ```bash
 git clone https://github.com/x90skysn3k/rtv-cicd-attack-chain.git
 cd rtv-cicd-attack-chain
 ```
 
-Expected result: you are inside the public bundle repository.
+Read `terraform/advanced-chain/` and `take-home-scripts/` before applying anything. The advanced Terraform uses fixed `rtv-take-home` names, restricts the provider to the expected account, pre-creates a logs-only Lambda execution role, constrains one target role to one declared IAM principal, and gives that target only `secretsmanager:GetSecretValue` on four visibly fake secrets.
 
-### Take-home Step 2 — Configure Terraform inputs
+### Take-home Step 2 — Reproduce the live PR-to-merge infrastructure
 
-Goal: point Terraform at your empty AWS account and throwaway GitHub repo.
+Configure `terraform/demo-account/terraform.tfvars` from its example for your dedicated account and throwaway repository, then initialize, review the plan, and apply it. Store only a throwaway, repository-scoped GitHub credential in its demo secret. Walk the live steps above against your own repository:
 
-Run:
+```text
+PR-controlled step → OIDC/STS → demo PAT read → merge → trophy wall
+```
+
+This remains separate from the advanced chain.
+
+### Take-home Step 3 — Configure the advanced chain
+
+Identify the IAM user or role ARN that will run the scripts; use an IAM principal ARN, not an STS session ARN.
 
 ```bash
-cd terraform/demo-account
+cd terraform/advanced-chain
 cp terraform.tfvars.example terraform.tfvars
 ```
 
-Edit `terraform.tfvars` and set:
+Set `aws_account_id`, `chain_source_principal_arn`, and the exact dedicated-account acknowledgement. Keep `terraform.tfvars` local. Initialize Terraform, review the complete plan, and apply only after confirming the provider account.
 
-```hcl
-aws_account_id = "replace_with_your_empty_aws_account_id"
-github_org     = "replace_with_your_throwaway_github_org"
-github_repo    = "cicd-demo"
-aws_region     = "us-east-1"
-```
+Expected outputs include `aws_account_id`, `aws_region`, `chain_source_principal_arn`, `lambda_exec_role_arn`, `chain_target_role_arn`, `pivot_secret_names`, `lambda_log_group_name`, and `detection_log_group_name`.
 
-Expected result: `terraform.tfvars` exists locally and is not committed.
+### Take-home Step 4 — Export the Terraform contract
 
-### Take-home Step 3 — Create the bounded AWS lab resources
-
-Goal: create only the OIDC role and demo secret needed for the reproduction.
-
-Run:
+From `terraform/advanced-chain/`:
 
 ```bash
-terraform init
-terraform validate
-terraform plan
-terraform apply
+export EXPECTED_AWS_ACCOUNT_ID="$(terraform output -raw aws_account_id)"
+export AWS_REGION="$(terraform output -raw aws_region)"
+export EXPECTED_SOURCE_PRINCIPAL_ARN="$(terraform output -raw chain_source_principal_arn)"
+export LAMBDA_EXEC_ROLE_ARN="$(terraform output -raw lambda_exec_role_arn)"
+export CHAIN_TARGET_ROLE_ARN="$(terraform output -raw chain_target_role_arn)"
+export PIVOT_CODE_HOSTING_SECRET_NAME="$(terraform output -json pivot_secret_names | python3 -c 'import json,sys; print(json.load(sys.stdin)["code_hosting"])')"
+export PIVOT_CI_PLATFORM_SECRET_NAME="$(terraform output -json pivot_secret_names | python3 -c 'import json,sys; print(json.load(sys.stdin)["ci_platform"])')"
+export PIVOT_DATA_WAREHOUSE_SECRET_NAME="$(terraform output -json pivot_secret_names | python3 -c 'import json,sys; print(json.load(sys.stdin)["data_warehouse"])')"
+export PIVOT_SAAS_API_SECRET_NAME="$(terraform output -json pivot_secret_names | python3 -c 'import json,sys; print(json.load(sys.stdin)["saas_api"])')"
+cd ../..
 ```
 
-Expected result: Terraform prints `role_arn`, `secret_name`, and `oidc_provider_arn`.
+Every script aborts unless the active account and fixed Terraform names match these explicit values.
 
-If stuck: confirm your active AWS credentials point at the same account as `aws_account_id`.
-
-### Take-home Step 4 — Store a throwaway GitHub token
-
-Goal: put a demo-scoped token into the lab secret.
-
-Run:
+### Take-home Step 5 — Deploy and prove bounded persistence
 
 ```bash
-aws secretsmanager put-secret-value \
-  --secret-id demo/github-pat \
-  --secret-string "replace_with_throwaway_demo_token"
+./take-home-scripts/01-deploy-and-prove-persistence.sh
 ```
 
-Expected result: AWS accepts a new secret version.
+The script refuses to overwrite existing resources, creates one fixed Lambda plus one fixed EventBridge rule/target, invokes it once, and requires its marker to appear in the pre-created three-day CloudWatch log group. The Lambda payload uses only Python's standard library and sends nothing outside AWS.
 
-If stuck: do not use a personal/work token. Create a throwaway token for the throwaway repo only.
+### Take-home Step 6 — Traverse one IAM edge
 
-### Take-home Step 5 — Walk the same student path
-
-Goal: reproduce the live chain against your own empty account and throwaway repo.
-
-Use the same live steps above:
-
-```text
-fork → submission JSON → PR → workflow log exports → STS identity → demo PAT read → merge → trophy wall
+```bash
+./take-home-scripts/02-assume-one-role.sh
 ```
 
-Expected result: the same trust-boundary failure is visible without using the conference AWS account.
+Export `CHAIN_CREDENTIALS_FILE` exactly as printed. The script verifies the active principal against the constrained trust policy and makes exactly one `AssumeRole` call to the fixed pivot-reader role.
 
-The live session avoids Terraform so the hour stays focused on the attack graph, not provider downloads and state management.
+### Take-home Step 7 — Read only fake pivot secrets
+
+```bash
+./take-home-scripts/03-read-fake-pivot-secrets.sh
+```
+
+The script accepts only the four fixed Terraform output names, verifies the one-edge session, calls only `GetSecretValue`, and stops if a value is not visibly fake.
+
+### Take-home Step 8 — Observe and remove everything
+
+CloudTrail management events feed EventBridge rules for `CreateFunction`, `PutRule`, `PutTargets`, `AssumeRole`, and `GetSecretValue`. Use the `detection_log_group_name` output to inspect the matching events.
+
+```bash
+./take-home-scripts/99-teardown.sh
+cd terraform/advanced-chain
+terraform destroy
+```
+
+The script removes only the fixed Lambda, EventBridge target/rule, and temporary credential file. Terraform destroy removes the pre-created IAM, fake-secret, log-retention, CloudTrail, S3, and detection resources. Destroy `terraform/demo-account/` separately when you finish the live-path reproduction.
+
+The live session avoids all take-home Terraform and advanced scripts so the hour stays focused on the PR-to-STS-to-PAT-to-merge trust graph.
 
 ## Find yourself in the logs
 

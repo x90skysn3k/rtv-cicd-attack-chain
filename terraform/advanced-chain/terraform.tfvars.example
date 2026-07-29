@@ -1,0 +1,8 @@
+aws_account_id = "replace-with-dedicated-account-id"
+aws_region     = "us-east-1"
+
+# Use the IAM user or role ARN reported by your account administrator for the
+# principal that will run the take-home scripts. Do not use an STS session ARN.
+chain_source_principal_arn = "replace-with-current-iam-principal-arn"
+
+dedicated_account_acknowledgement = "I understand this creates a disposable lab in a dedicated empty AWS account"

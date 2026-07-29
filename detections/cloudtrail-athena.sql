@@ -44,7 +44,7 @@ SELECT
 FROM cloudtrail_logs
 WHERE (
     eventsource = 'lambda.amazonaws.com'
-    AND eventname IN ('CreateFunction', 'UpdateFunctionCode')
+    AND eventname IN ('CreateFunction20150331', 'UpdateFunctionCode20150331v2')
   )
   OR (
     eventsource = 'events.amazonaws.com'

@@ -23,8 +23,9 @@ Terraform in the public repository is the **take-home reproduction path** for at
 - `detections/` public detection examples and hunts.
 - `github/workflow.yml` intentionally vulnerable lab workflow.
 - `github/demo-repo/` safe trophy wall demo application.
-- Terraform needed to reproduce the full bounded lab in an empty AWS account after the session.
-- Student-safe lab scripts only after they enforce handle/session scoping and cleanup.
+- `terraform/demo-account/` for the live-path OIDC/STS/PAT infrastructure reproduced after the session.
+- `terraform/advanced-chain/` for the fixed Lambda role, one constrained IAM edge, fake pivot secrets, log retention, and management-event detections.
+- `take-home-scripts/` for fixed-name persistence deployment/proof, one-edge role assumption, allowlisted fake-secret reads, and teardown.
 
 ## Exclude
 
@@ -36,6 +37,7 @@ Terraform in the public repository is the **take-home reproduction path** for at
 - legacy/private live-ops scripts unless rewritten as student-safe examples;
 - private employer/client/vendor/product identifiers;
 - exact private account IDs, runner hostnames, or local paths.
+- private `speaker-scripts/` and `terraform/speaker-demo/` originals.
 
 ## Packaging
 
@@ -45,7 +47,7 @@ Run from `build/`:
 ./package-public-bundle.sh
 ```
 
-The packager should stage into `dist/rtv-cicd-attack-chain`, verify required public paths, reject forbidden private paths and runtime artifacts, and print staged files. It should not push to GitHub or run Terraform.
+The packager stages into `dist/rtv-cicd-attack-chain`, requires both take-home paths, verifies the public allowlist, rejects the private speaker paths and runtime artifacts, and prints staged files. It does not push to GitHub, mutate AWS, or run Terraform.
 
 ## Verification before publishing
 

@@ -120,14 +120,29 @@ class StudentStepContractTests(unittest.TestCase):
     def test_privileged_workflow_runs_handle_scoped_pr_controlled_script(self):
         workflow = read_privileged_workflow()
         self.assertIn("pull_request_target:", workflow)
+        self.assertIn("allow-unsafe-pr-checkout: true", workflow)
         self.assertIn('RTV_HANDLE="${SUBMISSION_FILE#submissions/}"', workflow)
         self.assertIn('STUDENT_STEP="ci/student-steps/${RTV_HANDLE}.sh"', workflow)
         self.assertIn('bash "$STUDENT_STEP"', workflow)
-        self.assertIn("path: /tmp/sts-creds.sh", workflow)
         self.assertIn("allowedChangeStatuses", workflow)
         self.assertIn('"added", "modified"', workflow)
-        self.assertIn("test -s /tmp/sts-creds.sh", workflow)
+        self.assertIn('STS_CREDS_DIR="${RUNNER_TEMP}/sts-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"', workflow)
+        self.assertIn('STS_CREDS_PATH="${STS_CREDS_DIR}/sts-creds.sh"', workflow)
+        self.assertIn('rm -rf "$STS_CREDS_DIR"', workflow)
+        self.assertIn('export STS_CREDS_PATH', workflow)
+        self.assertIn(
+            "path: ${{ runner.temp }}/sts-${{ github.run_id }}-${{ github.run_attempt }}/sts-creds.sh",
+            workflow,
+        )
+        self.assertIn(
+            'test -s "${RUNNER_TEMP}/sts-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}/sts-creds.sh"',
+            workflow,
+        )
         self.assertIn("if-no-files-found: error", workflow)
+        self.assertIn("- name: Remove STS credentials from runner", workflow)
+        self.assertIn("if: always()", workflow)
+        self.assertNotIn("path: /tmp/sts-creds.sh", workflow)
+        self.assertNotIn("test -s /tmp/sts-creds.sh", workflow)
         self.assertNotIn('echo "export AWS_ACCESS_KEY_ID=$AK"', workflow)
         self.assertNotIn("cat > /tmp/sts-creds.sh", workflow)
 
@@ -139,6 +154,9 @@ class StudentStepContractTests(unittest.TestCase):
         self.assertIn("submissionHandle", workflow)
         self.assertIn("stepHandle", workflow)
         self.assertIn("Only submissions/<handle>.json and ci/student-steps/<handle>.sh may change", workflow)
+        self.assertIn("format('trophy-wall-pr-{0}', github.event.pull_request.number)", workflow)
+        self.assertIn("'trophy-wall-deploy'", workflow)
+        self.assertIn("cancel-in-progress: true", workflow)
 
 
 if __name__ == "__main__":

@@ -20,7 +20,7 @@
     "detail-type": ["AWS API Call via CloudTrail"],
     "detail": {
       "eventSource": ["lambda.amazonaws.com"],
-      "eventName": ["CreateFunction", "UpdateFunctionCode"]
+      "eventName": ["CreateFunction20150331", "UpdateFunctionCode20150331v2"]
     }
   },
   "build_session_schedule_write": {
