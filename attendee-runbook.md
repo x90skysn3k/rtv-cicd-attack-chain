@@ -336,13 +336,13 @@ At this point, pause live commands and follow the advanced chain artifact walkth
 
 The same trust mistake can continue beyond the live room path. During the session, the advanced chain is shown through code snippets, pre-captured logs, and diagrams.
 
+The `./lab/...` paths shown in some presenter artifacts are private presenter scaffolding; they are not attendee commands and are not included in this public repository. The bounded public equivalents are linked below and require the take-home setup later in this runbook.
+
 ### Controlled serverless persistence
 
-Artifact/code path:
+Presenter artifact: sanitized persistence deployment code and logs.
 
-```bash
-./lab/20-deploy-persistence.sh YOUR_HANDLE
-```
+Public take-home equivalent: [`take-home-scripts/01-deploy-and-prove-persistence.sh`](take-home-scripts/01-deploy-and-prove-persistence.sh).
 
 What the artifact demonstrates:
 
@@ -359,11 +359,9 @@ No implant. No endpoint. No C2. Still durable cloud control-plane behavior.
 
 ### IAM graph walk
 
-Artifact/code path:
+Presenter artifact: sanitized one-edge role-assumption code and logs.
 
-```bash
-./lab/30-assume-demo-role.sh YOUR_HANDLE
-```
+Public take-home equivalent: [`take-home-scripts/02-assume-one-role.sh`](take-home-scripts/02-assume-one-role.sh).
 
 What the artifact demonstrates:
 
@@ -379,11 +377,9 @@ Trust policies are graph edges. Attackers walk graphs.
 
 ### Controlled secrets pivot
 
-Artifact/code path:
+Presenter artifact: sanitized fake-secret retrieval code and logs.
 
-```bash
-./lab/40-read-demo-pivot-secrets.sh YOUR_HANDLE
-```
+Public take-home equivalent: [`take-home-scripts/03-read-fake-pivot-secrets.sh`](take-home-scripts/03-read-fake-pivot-secrets.sh).
 
 Demo categories:
 
