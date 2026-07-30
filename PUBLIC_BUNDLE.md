@@ -25,7 +25,7 @@ Terraform in the public repository is the **take-home reproduction path** for at
 - `github/demo-repo/` safe trophy wall demo application.
 - `terraform/demo-account/` for the live-path OIDC/STS/PAT infrastructure reproduced after the session.
 - `terraform/advanced-chain/` for the fixed Lambda role, one constrained IAM edge, fake pivot secrets, log retention, and management-event detections.
-- `take-home-scripts/` for fixed-name persistence deployment/proof, one-edge role assumption, allowlisted fake-secret reads, and teardown.
+- `take-home-scripts/` for fixed-name persistence deployment, attendee-controlled TLS credential proof, one-edge role assumption, allowlisted fake-secret reads, and teardown.
 
 ## Exclude
 

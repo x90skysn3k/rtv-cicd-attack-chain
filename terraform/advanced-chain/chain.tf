@@ -8,7 +8,7 @@ resource "aws_cloudwatch_log_group" "persistence" {
 
 resource "aws_iam_role" "lambda_execution" {
   name        = "${local.name_prefix}-lambda-execution"
-  description = "Least-privilege execution role for the fixed take-home proof Lambda."
+  description = "Execution role for the take-home proof Lambda and its demonstrated secret inventory."
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -24,19 +24,26 @@ resource "aws_iam_role" "lambda_execution" {
 }
 
 resource "aws_iam_role_policy" "lambda_logs_only" {
-  name = "write-fixed-log-group-only"
+  name = "write-fixed-log-group-and-list-secrets"
   role = aws_iam_role.lambda_execution.id
 
   policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [{
-      Effect = "Allow"
-      Action = [
-        "logs:CreateLogStream",
-        "logs:PutLogEvents"
-      ]
-      Resource = "${aws_cloudwatch_log_group.persistence.arn}:*"
-    }]
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ]
+        Resource = "${aws_cloudwatch_log_group.persistence.arn}:*"
+      },
+      {
+        Effect   = "Allow"
+        Action   = "secretsmanager:ListSecrets"
+        Resource = "*"
+      }
+    ]
   })
 }
 

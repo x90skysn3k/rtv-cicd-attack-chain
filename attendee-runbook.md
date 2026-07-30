@@ -28,6 +28,8 @@ You need:
 - Terminal with `aws`, `jq`, and `curl` if possible.
 - A unique handle you choose for the lab, for example `student07`.
 
+The take-home path additionally requires Terraform `>= 1.5`, Python 3, `zip`, the AWS CLI, and credentials for a dedicated empty AWS account you control. The optional listener path has additional host requirements in Take-home Step 4.5.
+
 Steps 3 and 3.5 use `YOUR_HANDLE` as a placeholder. Replace it in the filenames and JSON content with the same chosen handle; duplicate handles are rejected.
 
 ## Live hands-on: PR to merge authority
@@ -413,8 +415,10 @@ https://github.com/x90skysn3k/rtv-cicd-attack-chain
 git clone https://github.com/x90skysn3k/rtv-cicd-attack-chain.git
 cd rtv-cicd-attack-chain
 ```
+The take-home path requires Terraform `>= 1.5`, the AWS CLI, `python3`, and `zip`. The optional remote proof listener also requires local `ssh` and `scp`.
 
-Read `terraform/advanced-chain/` and `take-home-scripts/` before applying anything. The advanced Terraform uses fixed `rtv-take-home` names, restricts the provider to the expected account, pre-creates a logs-only Lambda execution role, constrains one target role to one declared IAM principal, and gives that target only `secretsmanager:GetSecretValue` on four visibly fake secrets.
+
+Read `terraform/advanced-chain/` and `take-home-scripts/` before applying anything. The advanced Terraform uses fixed `rtv-take-home` names, restricts the provider to the expected account, gives the Lambda execution role access to its fixed log group plus `secretsmanager:ListSecrets`, constrains one target role to one declared IAM principal, and gives that target only `secretsmanager:GetSecretValue` on four visibly fake secrets.
 
 ### Take-home Step 2 — Reproduce the live PR-to-merge infrastructure
 
@@ -458,13 +462,42 @@ cd ../..
 
 Every script aborts unless the active account and fixed Terraform names match these explicit values.
 
+### Take-home Step 4.5 — Configure the credential-proof listener
+
+The persistence Lambda preserves the presenter callback behavior, including sending its temporary Lambda-role credentials to the TLS listener. The listener and callback source are provided as-is. Before running them, replace every `YOURHOST` and `robot.tiden.io` hostname in these three files with one public DNS hostname and SSH host that you control:
+
+```text
+take-home-scripts/01-deploy-and-prove-persistence.sh
+take-home-scripts/lambda-src/index.py
+take-home-scripts/start-proof-listner.sh
+```
+
+The remote host must have `python3`, `openssl`, `firewall-cmd`, passwordless `sudo` for the temporary listener resources, and inbound TCP port `1337`. Review the resulting diff and confirm no presenter hostname remains.
+
+In terminal 1 on your laptop:
+
+```bash
+bash ./take-home-scripts/start-proof-listner.sh
+```
+
+Keep terminal 1 running. The launcher creates a one-day certificate, copies its CA certificate to `/tmp/rtv-proof-listener-ca.pem` on your laptop, opens TCP port `1337`, and removes those listener resources when it exits.
+
+In terminal 2 on the same laptop:
+
+```bash
+export ENABLE_PROOF_CALLBACK="1"
+export PROOF_DETAIL_MODE="identity"
+```
+
+`identity` sends the Lambda execution role's temporary access key ID, secret access key, and session token to your listener. Use `PROOF_DETAIL_MODE="basic"` to send only invocation metadata. To run only the CloudWatch proof without a callback, set `ENABLE_PROOF_CALLBACK="0"`; this does not remove or alter the callback feature.
+
 ### Take-home Step 5 — Deploy and prove bounded persistence
 
 ```bash
 ./take-home-scripts/01-deploy-and-prove-persistence.sh
 ```
 
-The script refuses to overwrite existing resources, creates one fixed Lambda plus one fixed EventBridge rule/target, invokes it once, and requires its marker to appear in the pre-created three-day CloudWatch log group. The Lambda payload uses only Python's standard library and sends nothing outside AWS.
+The script creates or updates the fixed Lambda and EventBridge rule/target, invokes the function once, and schedules it to fire again. CloudWatch records the Lambda identity and visible secret names. With the callback enabled, terminal 1 receives the selected proof payload over TLS. The Lambda execution role is limited to its fixed log group and `secretsmanager:ListSecrets`; the captured credentials do not have permission to read secret values.
 
 ### Take-home Step 6 — Traverse one IAM edge
 

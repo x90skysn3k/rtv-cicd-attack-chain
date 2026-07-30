@@ -39,19 +39,20 @@ Do **not** run Terraform during the live room session. Terraform is only for the
 ## What is here
 
 - `attendee-runbook.md` — attendee-facing room path and artifact/code walkthrough.
+- [`handout/attendee-runbook.pdf`](handout/attendee-runbook.pdf) — print-ready Letter-size PDF of the attendee runbook.
 - `PUBLIC_BUNDLE.md` — public export policy.
 - `github/workflow.yml` — intentionally vulnerable workflow.
 - `github/demo-repo/` — safe trophy wall app.
 - `terraform/demo-account/` — public reproduction infrastructure for the live PR-to-STS-to-PAT path.
 - `terraform/advanced-chain/` — take-home-only fixed persistence role, one IAM edge, fake pivot secrets, retention, and management-event detections.
-- `take-home-scripts/` — take-home-only deploy/proof, one-edge traversal, fake-secret reads, and fixed-resource teardown.
+- `take-home-scripts/` — take-home-only persistence deployment, attendee-controlled TLS credential proof, one-edge traversal, fake-secret reads, and fixed-resource teardown.
 - `detections/` — additional public detection examples and hunts.
 - `handout/` — public attendee handouts.
 - `docs/` — public redirect/QR support.
 
 ## Full take-home chain
 
-After the session, use a dedicated, empty AWS account. Apply `terraform/demo-account/` for the live-path reproduction and `terraform/advanced-chain/` for the advanced resources, export the documented Terraform outputs, then run `take-home-scripts/01-deploy-and-prove-persistence.sh`, `02-assume-one-role.sh`, `03-read-fake-pivot-secrets.sh`, and `99-teardown.sh` in order. The advanced target policy permits only `secretsmanager:GetSecretValue` on the four Terraform-created fake secrets.
+After the session, use a dedicated, empty AWS account. Apply `terraform/demo-account/` for the live-path reproduction and `terraform/advanced-chain/` for the advanced resources, export the documented Terraform outputs, configure the attendee-controlled TLS listener or explicitly select CloudWatch-only mode, then run `take-home-scripts/01-deploy-and-prove-persistence.sh`, `02-assume-one-role.sh`, `03-read-fake-pivot-secrets.sh`, and `99-teardown.sh` in order. The Lambda role can write only its fixed log group and inventory secret names; the advanced target policy permits only `secretsmanager:GetSecretValue` on the four Terraform-created fake secrets.
 
 The live hour remains PR-controlled step → OIDC/STS → demo PAT read → merge. Do not run the take-home Terraform or persistence/IAM/pivot scripts in the conference workflow.
 

