@@ -1,0 +1,139 @@
+@page {
+  size: Letter landscape;
+  margin: 0.6in;
+}
+
+:root {
+  color-scheme: light;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  color: #111111;
+  background: #ffffff;
+  font-size: 8.1pt;
+  line-height: 1.17;
+}
+
+body {
+  width: 9.8in;
+  margin: 0 auto;
+}
+
+section.level2 {
+  height: 6.8in;
+  column-count: 3;
+  column-gap: 0.32in;
+  column-fill: auto;
+}
+
+section.level3 {
+  break-inside: avoid-column;
+  margin: 0 0 0.075in;
+}
+
+#real-world-precedent,
+#trust-boundaries-that-need-to-exist {
+  break-before: column;
+}
+
+#real-world-precedent,
+#detection-signals-deployable-today,
+#trust-boundaries-that-need-to-exist,
+#live-training-docs,
+#reproduce-the-full-chain-at-home,
+#contact {
+  font-size: 8.8pt;
+  line-height: 1.2;
+}
+
+h1, h2, h3 {
+  color: #ff2e4d;
+  line-height: 1.06;
+  break-after: avoid-column;
+  margin-top: 0;
+}
+
+h1 {
+  font-size: 18pt;
+  margin: 0 0 0.025in;
+  color: #ff2e4d;
+}
+
+h2 {
+  column-span: all;
+  font-size: 9.2pt;
+  margin: 0 0 0.08in;
+  padding-bottom: 0.055in;
+  border-bottom: 2px solid #ff2e4d;
+}
+
+h3 {
+  font-size: 9.5pt;
+  margin: 0 0 0.028in;
+  padding-bottom: 0.02in;
+  border-bottom: 1px solid #ff2e4d;
+}
+
+hr {
+  display: none;
+}
+
+p, ul, ol, table {
+  margin-top: 0.02in;
+  margin-bottom: 0.04in;
+}
+
+ul, ol {
+  padding-left: 0.175in;
+}
+
+li {
+  margin-bottom: 0.01in;
+}
+
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: #ff2e4d;
+  font-size: 0.84em;
+  overflow-wrap: anywhere;
+}
+
+p code, li code {
+  padding: 0 0.07em;
+  background: #f1f5f9;
+  border-radius: 2px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  break-inside: avoid-column;
+  font-size: 7.05pt;
+  line-height: 1.1;
+}
+
+th, td {
+  padding: 0.026in 0.034in;
+  border: 1px solid #64748b;
+  vertical-align: top;
+}
+
+th {
+  color: #ffffff;
+  background: #ff2e4d;
+}
+
+img {
+  display: block;
+  width: 1.28in;
+  height: 1.28in;
+  margin: 0.035in auto;
+}
+
+a {
+  color: #ff2e4d;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+strong {
+  color: #ff2e4d;
+}
