@@ -40,6 +40,7 @@ Do **not** run Terraform during the live room session. Terraform is only for the
 
 - `attendee-runbook.md` — attendee-facing room path and artifact/code walkthrough.
 - [`handout/attendee-runbook.pdf`](handout/attendee-runbook.pdf) — print-ready Letter-size PDF of the attendee runbook.
+- [`handout/one-pager.pdf`](handout/one-pager.pdf) — single-page landscape Letter handout for room printing.
 - `PUBLIC_BUNDLE.md` — public export policy.
 - `github/workflow.yml` — intentionally vulnerable workflow.
 - `github/demo-repo/` — safe trophy wall app.

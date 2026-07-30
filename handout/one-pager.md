@@ -9,28 +9,17 @@ Force-merged a pull request you did not own, using AWS credentials your own PR-c
 
 ### The live command path
 
-1. **Fork**
-   - fork the Totally Not Vulnerable Repo
-2. **Review the pipeline configs**
-   - open `.github/workflows/ci.yml`
-2.5. **Spot the vulnerable lines**
-   - find `pull_request_target`, PR checkout, and `bash "$STUDENT_STEP"`
-3. **Add submission JSON**
-   - create `submissions/YOUR_HANDLE.json` with `{"handle":"YOUR_HANDLE","message":"your message"}`
-3.5. **Add pipeline step**
-   - create matching `ci/student-steps/YOUR_HANDLE.sh`
-4. **Open PR**
-   - target the room demo repo, not your fork
-5. **Download STS artifact**
-   - download `sts-credentials`, open `sts-creds.sh`, and paste the exports
-6. **Verify AWS identity**
-   - `aws sts get-caller-identity`
-7. **Read demo PAT**
-   - read `demo/github-pat` into `PAT`
-8. **Merge your PR**
-   - `curl -X PUT .../pulls/${PR_NUMBER}/merge` with `PAT`
-9. **Refresh trophy wall**
-   - wait for GitHub Pages if the wall lags
+- **Step 1 — Fork:** fork the Totally Not Vulnerable Repo.
+- **Step 2 — Review the pipeline configs:** open `.github/workflows/ci.yml`.
+- **Step 2.5 — Spot the vulnerable lines:** find `pull_request_target`, PR checkout, and `bash "$STUDENT_STEP"`.
+- **Step 3 — Add submission JSON:** create `submissions/YOUR_HANDLE.json` with `{"handle":"YOUR_HANDLE","message":"your message"}`.
+- **Step 3.5 — Add pipeline step:** create matching `ci/student-steps/YOUR_HANDLE.sh`.
+- **Step 4 — Open PR:** target the room demo repo, not your fork.
+- **Step 5 — Download STS artifact:** download `sts-credentials`, open `sts-creds.sh`, and paste the exports.
+- **Step 6 — Verify AWS identity:** run `aws sts get-caller-identity`.
+- **Step 7 — Read demo PAT:** read `demo/github-pat` into `PAT`.
+- **Step 8 — Merge your PR:** call `curl -X PUT .../pulls/${PR_NUMBER}/merge` with `PAT`.
+- **Step 9 — Refresh trophy wall:** wait for GitHub Pages if the wall lags.
 
 ### The advanced chain we walk through with artifacts/code
 
