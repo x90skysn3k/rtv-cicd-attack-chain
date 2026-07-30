@@ -332,17 +332,17 @@ Why it matters: the live room path ends at code-hosting impact. The rest of the 
 
 At this point, pause live commands and follow the advanced chain artifact walkthrough.
 
-## Advanced chain: taught with artifacts/code
+## Advanced chain: presenter walkthrough only
 
-The same trust mistake can continue beyond the live room path. During the session, the advanced chain is shown through code snippets, pre-captured logs, and diagrams.
+Do **not** run this section during the conference lab. The presenter shows sanitized code and pre-captured logs from private presenter scaffolding; those private scripts are intentionally not published.
 
-The `./lab/...` paths shown in some presenter artifacts are private presenter scaffolding; they are not attendee commands and are not included in this public repository. The bounded public equivalents are linked below and require the take-home setup later in this runbook.
+If you want to reproduce the same concepts, use the linked public scripts only **after the session**, after completing Take-home Steps 1–4 below, in a dedicated empty AWS account that you control. They are bounded take-home implementations, not commands for the conference demo account.
 
 ### Controlled serverless persistence
 
 Presenter artifact: sanitized persistence deployment code and logs.
 
-Public take-home equivalent: [`take-home-scripts/01-deploy-and-prove-persistence.sh`](take-home-scripts/01-deploy-and-prove-persistence.sh).
+Own-lab script for later: [`take-home-scripts/01-deploy-and-prove-persistence.sh`](take-home-scripts/01-deploy-and-prove-persistence.sh).
 
 What the artifact demonstrates:
 
@@ -361,7 +361,7 @@ No implant. No endpoint. No C2. Still durable cloud control-plane behavior.
 
 Presenter artifact: sanitized one-edge role-assumption code and logs.
 
-Public take-home equivalent: [`take-home-scripts/02-assume-one-role.sh`](take-home-scripts/02-assume-one-role.sh).
+Own-lab script for later: [`take-home-scripts/02-assume-one-role.sh`](take-home-scripts/02-assume-one-role.sh).
 
 What the artifact demonstrates:
 
@@ -379,7 +379,7 @@ Trust policies are graph edges. Attackers walk graphs.
 
 Presenter artifact: sanitized fake-secret retrieval code and logs.
 
-Public take-home equivalent: [`take-home-scripts/03-read-fake-pivot-secrets.sh`](take-home-scripts/03-read-fake-pivot-secrets.sh).
+Own-lab script for later: [`take-home-scripts/03-read-fake-pivot-secrets.sh`](take-home-scripts/03-read-fake-pivot-secrets.sh).
 
 Demo categories:
 
