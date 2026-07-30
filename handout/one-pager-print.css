@@ -137,3 +137,8 @@ a {
 strong {
   color: #ff2e4d;
 }
+
+li strong,
+p strong {
+  color: #111111;
+}
